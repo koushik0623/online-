@@ -1,0 +1,5 @@
+# Robots.txt for Sparkle KKV - https://sparklekkv.com
+User-agent: *
+Allow: /
+
+Sitemap: https://sparklekkv.com/sitemap.xml
