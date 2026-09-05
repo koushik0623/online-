@@ -34,8 +34,10 @@ const JWT_SECRET = process.env.JWT_SECRET || 'sparkle_kkv_secure_jwt_secret_key_
 export async function registerUser({ firstName, lastName, email, phone, password, role = 'CUSTOMER' }) {
   const cleanEmail = email ? email.trim().toLowerCase() : '';
   const cleanPhone = phone ? phone.replace(/\D/g, '') : '';
-  const cleanFirstName = firstName ? firstName.trim() : '';
+  const cleanFirstName = firstName ? firstName.trim() : (cleanEmail ? cleanEmail.split('@')[0] : 'Sparkle');
   const cleanLastName = lastName ? lastName.trim() : '';
+  const cleanRole = (role || 'CUSTOMER').toUpperCase();
+  const dbRole = ['CUSTOMER', 'ADMIN', 'SUPER_ADMIN'].includes(cleanRole) ? cleanRole : 'CUSTOMER';
 
   if (!cleanEmail && !cleanPhone) {
     return { success: false, statusCode: 400, error: 'Email or phone number is required.' };
@@ -60,7 +62,7 @@ export async function registerUser({ firstName, lastName, email, phone, password
       INSERT INTO users (first_name, last_name, email, phone, password_hash, role, is_active, email_verified)
       VALUES ($1, $2, $3, $4, $5, $6, true, false)
       RETURNING id, first_name, last_name, email, phone, role, created_at
-    `, [cleanFirstName, cleanLastName, cleanEmail, cleanPhone, passwordHash, role]);
+    `, [cleanFirstName, cleanLastName, cleanEmail, cleanPhone, passwordHash, dbRole]);
 
     if (insertRes.success && insertRes.rows.length > 0) {
       const user = insertRes.rows[0];
