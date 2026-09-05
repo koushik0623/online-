@@ -39,13 +39,13 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'sparklekkvofficial@gmail.com';
 // ============================================================
 // MOUNT POSTGRESQL PRODUCTION API ROUTES
 // ============================================================
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/products', productRoutes);
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/users', '/users'], userRoutes);
+app.use(['/api/cart', '/cart'], cartRoutes);
+app.use(['/api/orders', '/orders'], orderRoutes);
+app.use(['/api/payments', '/payments'], paymentRoutes);
+app.use(['/api/admin', '/admin'], adminRoutes);
+app.use(['/api/products', '/products'], productRoutes);
 
 // ============================================================
 // DATA DIRECTORY & LOCAL FALLBACK HELPERS

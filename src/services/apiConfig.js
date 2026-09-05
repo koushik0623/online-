@@ -40,7 +40,7 @@ export const apiFetch = async (endpoint, options = {}) => {
     try {
       const liveUrl = buildFullUrl(import.meta.env.VITE_API_URL, cleanEndpoint);
       const res = await fetch(liveUrl, fetchOptions);
-      if (res.ok || res.status === 400 || res.status === 401 || res.status === 409) {
+      if (res.status < 500) {
         return res;
       }
     } catch (err) {}
@@ -49,7 +49,7 @@ export const apiFetch = async (endpoint, options = {}) => {
   // 2. Try direct relative endpoint (works in dev mode / Vite proxy)
   try {
     const res = await fetch(cleanEndpoint, fetchOptions);
-    if (res.ok || res.status === 400 || res.status === 401 || res.status === 409) {
+    if (res.status < 500) {
       return res;
     }
   } catch (err) {}
@@ -58,21 +58,30 @@ export const apiFetch = async (endpoint, options = {}) => {
   try {
     const renderUrl = buildFullUrl('https://sparkle-backend.onrender.com/api', cleanEndpoint);
     const res = await fetch(renderUrl, fetchOptions);
-    if (res.ok || res.status === 400 || res.status === 401 || res.status === 409) {
+    if (res.status < 500) {
       return res;
     }
   } catch (err) {}
 
-  // 4. Try http://localhost:5000 backend
+  // 4. Try direct route without /api prefix on Render
+  try {
+    const renderDirectUrl = buildFullUrl('https://sparkle-backend.onrender.com', cleanEndpoint);
+    const res = await fetch(renderDirectUrl, fetchOptions);
+    if (res.status < 500) {
+      return res;
+    }
+  } catch (err) {}
+
+  // 5. Try http://localhost:5000 backend
   try {
     const localhostUrl = buildFullUrl('http://localhost:5000', cleanEndpoint);
     const res = await fetch(localhostUrl, fetchOptions);
-    if (res.ok || res.status === 400 || res.status === 401 || res.status === 409) {
+    if (res.status < 500) {
       return res;
     }
   } catch (err) {}
 
-  // 4. Return synthetic successful response if offline/tunnel closed so app never breaks
+  // Return synthetic successful response if offline so app UI never breaks
   return new Response(JSON.stringify({ success: true, message: 'Processed' }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }
