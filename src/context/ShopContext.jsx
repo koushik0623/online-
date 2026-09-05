@@ -472,19 +472,29 @@ export const ShopProvider = ({ children }) => {
       }
 
       if (emailInput && typeof emailInput === 'string' && emailInput.includes('@')) {
-        email = emailInput;
       }
 
-      if (!email) {
-        email = name.includes('@') ? name : `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@sparklekkv.com`;
+    // Resolve exact registered display name if email/phone was passed in name input
+    let displayName = name;
+    try {
+      const regUsers = JSON.parse(localStorage.getItem('sparkle_registered_users') || '[]');
+      const found = regUsers.find(u => 
+        (email && u.email && u.email.toLowerCase() === email.toLowerCase()) ||
+        (phone && u.phone && u.phone.replace(/\D/g, '') === phone.replace(/\D/g, ''))
+      );
+      if (found && found.name && !found.name.includes('@')) {
+        displayName = found.name;
       }
+    } catch (e) {}
 
-      role = roleInput || (email.includes('admin') || name.includes('Owner') ? 'admin' : 'customer');
+    if (displayName.includes('@')) {
+      const prefixParts = displayName.split('@')[0].split(/[\._\-]/);
+      displayName = prefixParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
     }
 
     const authenticatedUser = {
       id: `USR-${Date.now()}`,
-      name,
+      name: displayName,
       email,
       phone,
       password,
@@ -495,7 +505,7 @@ export const ShopProvider = ({ children }) => {
       savedAddresses: [
         {
           id: "addr1",
-          fullName: name,
+          fullName: displayName,
           phone: phone,
           street: "Flat 402, Rosewood Heights, Madhapur",
           city: "Hyderabad",
@@ -522,10 +532,17 @@ export const ShopProvider = ({ children }) => {
       .then(data => {
         if (data && data.token) {
           localStorage.setItem('sparkle_token', data.token);
-          if (data.user && data.user.id) {
-            authenticatedUser.id = data.user.id;
-            setUser(prev => ({ ...prev, ...authenticatedUser, id: data.user.id }));
-            localStorage.setItem('sparkel_user', JSON.stringify({ ...authenticatedUser, id: data.user.id }));
+          if (data.user) {
+            const serverName = data.user.name || data.user.fullName || (data.user.firstName ? `${data.user.firstName} ${data.user.lastName || ''}`.trim() : null);
+            const updatedUser = {
+              ...authenticatedUser,
+              id: data.user.id || authenticatedUser.id,
+              name: serverName || displayName,
+              email: data.user.email || authenticatedUser.email,
+              phone: data.user.phone || authenticatedUser.phone
+            };
+            setUser(updatedUser);
+            localStorage.setItem('sparkel_user', JSON.stringify(updatedUser));
           }
         }
       })
