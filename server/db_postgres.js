@@ -14,10 +14,10 @@ let isPostgresConnected = false;
 
 export function getPostgresPool() {
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/sparkle_store';
+    const connectionString = process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_KwDIMS64ULhe@ep-frosty-truth-ayaemu3h-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require';
     
     // Check SSL configuration for cloud providers like Supabase / Neon / Render
-    const useSSL = connectionString.includes('sslmode=require') || connectionString.includes('amazonaws.com') || connectionString.includes('render.com') || connectionString.includes('supabase.co');
+    const useSSL = connectionString.includes('sslmode=require') || connectionString.includes('neon.tech') || connectionString.includes('amazonaws.com') || connectionString.includes('render.com') || connectionString.includes('supabase.co');
 
     pool = new Pool({
       connectionString,
