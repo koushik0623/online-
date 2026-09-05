@@ -34,6 +34,7 @@ if (fs.existsSync('assets')) {
 
 // Sync compiled build to root directory for GitHub Pages direct branch deployment
 if (fs.existsSync('dist')) {
+  if (fs.existsSync('dist/index.html')) fs.copyFileSync('dist/index.html', 'index.html');
   if (fs.existsSync('dist/404.html')) fs.copyFileSync('dist/404.html', '404.html');
   if (fs.existsSync('dist/.nojekyll')) fs.copyFileSync('dist/.nojekyll', '.nojekyll');
   if (fs.existsSync('dist/CNAME')) fs.copyFileSync('dist/CNAME', 'CNAME');
