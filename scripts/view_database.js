@@ -1,93 +1,97 @@
 import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
-import { fetchAllDatabaseOrders } from '../server/db_mysql.js';
+import pg from 'pg';
 
 dotenv.config();
 
+const { Pool } = pg;
+
 console.log('\n============================================================');
-console.log('   💎 SPARKLE @ KKV LUXURY STORE DATABASE VIEWER (VS CODE)   ');
+console.log('   💎 SPARKLE @ KKV NEON POSTGRESQL LIVE DATABASE VIEWER    ');
 console.log('============================================================\n');
 
 async function viewDatabase() {
-  console.log('📊 1. FETCHING MYSQL DATABASE (`sparkle_store`)...\n');
+  const connectionString = process.env.DATABASE_URL;
+
+  if (!connectionString) {
+    console.log('⚠️ DATABASE_URL not found in .env file.');
+    process.exit(1);
+  }
+
+  const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 5000
+  });
 
   try {
-    const sqlOrders = await fetchAllDatabaseOrders();
-    console.log(`✅ MySQL Connection: SUCCESS`);
-    console.log(`📦 Total MySQL Orders Found: ${sqlOrders.length}\n`);
-
-    if (sqlOrders.length > 0) {
-      console.log('--- MYSQL ORDERS TABLE SUMMARY ---');
-      console.table(sqlOrders.map(o => ({
-        OrderID: o.id,
-        Customer: o.customerName || o.shippingAddress?.fullName || 'N/A',
-        Phone: o.phone || o.shippingAddress?.phone || 'N/A',
-        Amount: `₹${o.totalAmount || o.cartTotal || 0}`,
-        PaymentMethod: o.paymentMethod || 'PayU',
-        PaymentStatus: o.paymentStatus || 'Paid',
-        OrderStatus: o.orderStatus || 'Order Received',
-        Date: o.createdAt || 'N/A'
+    console.log('🐘 1. NEON CLOUD POSTGRESQL USERS TABLE (`users`)\n');
+    const usersRes = await pool.query('SELECT id, first_name, last_name, email, phone, role, created_at, last_login_at FROM users ORDER BY created_at DESC');
+    console.log(`👤 Total Users Registered in Neon: ${usersRes.rows.length}`);
+    if (usersRes.rows.length > 0) {
+      console.table(usersRes.rows.map(u => ({
+        ID: u.id,
+        Name: `${u.first_name || ''} ${u.last_name || ''}`.trim(),
+        Email: u.email || 'N/A',
+        Phone: u.phone || 'N/A',
+        Role: u.role,
+        LastLogin: u.last_login_at ? new Date(u.last_login_at).toLocaleString() : 'N/A'
       })));
-    } else {
-      console.log('ℹ️ No orders in MySQL yet.');
     }
+
+    console.log('\n------------------------------------------------------------');
+    console.log('📦 2. NEON CLOUD POSTGRESQL ORDERS TABLE (`orders`)\n');
+    const ordersRes = await pool.query('SELECT id, order_number, total_amount, currency, payment_status, order_status, payment_method, created_at FROM orders ORDER BY created_at DESC');
+    console.log(`🛍️ Total Orders Placed in Neon: ${ordersRes.rows.length}`);
+    if (ordersRes.rows.length > 0) {
+      console.table(ordersRes.rows.map(o => ({
+        OrderID: o.order_number || o.id,
+        Amount: `${o.currency || 'INR'} ₹${o.total_amount}`,
+        PaymentStatus: o.payment_status,
+        OrderStatus: o.order_status,
+        Method: o.payment_method,
+        Date: new Date(o.created_at).toLocaleString()
+      })));
+    }
+
+    console.log('\n------------------------------------------------------------');
+    console.log('💳 3. NEON CLOUD POSTGRESQL PAYMENTS TABLE (`payments`)\n');
+    const paymentsRes = await pool.query('SELECT id, gateway, transaction_id, amount, status, payment_method, created_at FROM payments ORDER BY created_at DESC');
+    console.log(`💳 Total Payment Transactions: ${paymentsRes.rows.length}`);
+    if (paymentsRes.rows.length > 0) {
+      console.table(paymentsRes.rows.map(p => ({
+        TxnID: p.transaction_id || p.id,
+        Gateway: p.gateway,
+        Amount: `₹${p.amount}`,
+        Status: p.status,
+        Method: p.payment_method,
+        Date: new Date(p.created_at).toLocaleString()
+      })));
+    }
+
+    console.log('\n------------------------------------------------------------');
+    console.log('🛍️ 4. NEON CLOUD POSTGRESQL PRODUCTS SUMMARY (`products`)\n');
+    const prodsRes = await pool.query('SELECT id, name, sku, price, stock_quantity, is_active FROM products LIMIT 10');
+    console.log(`💎 Sample Products in Catalog: ${prodsRes.rows.length}`);
+    if (prodsRes.rows.length > 0) {
+      console.table(prodsRes.rows.map(pr => ({
+        SKU: pr.sku,
+        Name: pr.name,
+        Price: `₹${pr.price}`,
+        Stock: pr.stock_quantity,
+        Active: pr.is_active
+      })));
+    }
+
   } catch (err) {
-    console.log('⚠️ MySQL Database Notice:', err.message);
-  }
-
-  console.log('\n------------------------------------------------------------');
-  console.log('📂 2. READING LOCAL VS CODE JSON DATABASE FILES...\n');
-
-  const ordersJsonPath = path.resolve('server/data/orders.json');
-  const usersJsonPath = path.resolve('server/data/users.json');
-
-  if (fs.existsSync(ordersJsonPath)) {
-    try {
-      const fileData = JSON.parse(fs.readFileSync(ordersJsonPath, 'utf8'));
-      console.log(`📄 File: ${ordersJsonPath}`);
-      console.log(`📦 Total JSON File Orders: ${fileData.length}`);
-      if (fileData.length > 0) {
-        console.table(fileData.slice(0, 10).map(o => ({
-          ID: o.id,
-          Customer: o.customerName || o.shippingAddress?.fullName,
-          Phone: o.phone || o.shippingAddress?.phone,
-          Total: `₹${o.finalAmount || o.cartTotal || 0}`,
-          Status: o.paymentStatus || 'Paid'
-        })));
-      }
-    } catch (e) {
-      console.log('Error reading orders.json:', e.message);
-    }
-  } else {
-    console.log('ℹ️ Local orders.json file not created yet.');
-  }
-
-  console.log('');
-
-  if (fs.existsSync(usersJsonPath)) {
-    try {
-      const usersData = JSON.parse(fs.readFileSync(usersJsonPath, 'utf8'));
-      console.log(`📄 File: ${usersJsonPath}`);
-      console.log(`👤 Total Registered Customers: ${usersData.length}`);
-      if (usersData.length > 0) {
-        console.table(usersData.map(u => ({
-          ID: u.id || u.user_id,
-          Name: u.name || u.full_name,
-          Email: u.email,
-          Phone: u.phone,
-          Role: u.role || 'customer'
-        })));
-      }
-    } catch (e) {
-      console.log('Error reading users.json:', e.message);
-    }
-  } else {
-    console.log('ℹ️ Local users.json file not created yet.');
+    console.error('❌ Error querying Neon PostgreSQL:', err.message);
+  } finally {
+    await pool.end();
   }
 
   console.log('\n============================================================');
-  console.log('✨ DATABASE INSPECTION COMPLETE!');
+  console.log('✨ NEON POSTGRESQL LIVE INSPECTION COMPLETE!');
   console.log('============================================================\n');
   process.exit(0);
 }

@@ -10,7 +10,7 @@ import nodemailer from 'nodemailer';
 import bcrypt from 'bcryptjs';
 
 import db from './db.js';
-import { saveOrderToDatabase, updateOrderStatusByTxnid, fetchCustomerOrders, fetchAllDatabaseOrders } from './db_mysql.js';
+import { getMySQLPool, saveOrderToDatabase, updateOrderStatusByTxnid, fetchCustomerOrders, fetchAllDatabaseOrders } from './db_mysql.js';
 import { checkPostgresHealth, runPostgresMigrations, queryPostgres } from './db_postgres.js';
 import { seedPostgresDatabase } from './seed/seed_postgres.js';
 
@@ -31,13 +31,52 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-app.use(cors({ origin: '*' }));
+
+const allowedOrigins = [
+  'https://sparklekkv.com',
+  'https://www.sparklekkv.com',
+  'https://koushik0623.github.io',
+  'http://localhost:5173',
+  'http://localhost:5000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5000'
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
+  credentials: true
+}));
+
 app.use(express.json());
 const PORT = process.env.PORT || 5000;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'sparklekkvofficial@gmail.com';
 
+// Production Health Check Endpoint
+app.get(['/api/health', '/health'], async (req, res) => {
+  let dbStatus = 'disconnected';
+  try {
+    const pool = getMySQLPool();
+    const [rows] = await pool.query('SELECT 1 AS alive');
+    if (rows && rows.length > 0) dbStatus = 'connected';
+  } catch (e) {
+    dbStatus = 'disconnected';
+  }
+
+  res.json({
+    status: 'ok',
+    database: dbStatus,
+    environment: process.env.NODE_ENV || 'production'
+  });
+});
+
 // ============================================================
-// MOUNT POSTGRESQL PRODUCTION API ROUTES
+// MOUNT PRODUCTION API ROUTES
 // ============================================================
 app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/users', '/users'], userRoutes);
