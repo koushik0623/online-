@@ -448,11 +448,39 @@ export const ShopProvider = ({ children }) => {
   }, [user.isLoggedIn, user.id, user.email, user.phone]);
 
   const loginUser = (nameInput, phoneInput, passwordInput, emailInput, roleInput) => {
-    const name = nameInput || "Sparkle Customer";
-    const phone = phoneInput || "+91 9876543210";
-    const password = passwordInput || "••••••••";
-    const email = emailInput || (name.includes('@') ? name : `${name.toLowerCase().replace(/\s+/g, '')}@sparklekkv.com`);
-    const role = roleInput || (email.includes('admin') || name.includes('Owner') ? 'admin' : 'customer');
+    let name = "Sparkle Customer";
+    let phone = "+91 9876543210";
+    let password = "••••••••";
+    let email = "";
+    let role = "customer";
+
+    if (nameInput && typeof nameInput === 'object') {
+      name = nameInput.name || nameInput.fullName || "Sparkle Customer";
+      email = nameInput.email || "";
+      phone = nameInput.phone || "+91 9876543210";
+      password = nameInput.password || "••••••••";
+      role = nameInput.role || "customer";
+    } else {
+      name = nameInput || "Sparkle Customer";
+      password = passwordInput || "••••••••";
+      
+      if (typeof phoneInput === 'string' && phoneInput.includes('@')) {
+        email = phoneInput;
+        phone = "+91 9876543210";
+      } else {
+        phone = phoneInput || "+91 9876543210";
+      }
+
+      if (emailInput && typeof emailInput === 'string' && emailInput.includes('@')) {
+        email = emailInput;
+      }
+
+      if (!email) {
+        email = name.includes('@') ? name : `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@sparklekkv.com`;
+      }
+
+      role = roleInput || (email.includes('admin') || name.includes('Owner') ? 'admin' : 'customer');
+    }
 
     const authenticatedUser = {
       id: `USR-${Date.now()}`,
@@ -460,7 +488,7 @@ export const ShopProvider = ({ children }) => {
       email,
       phone,
       password,
-      role,
+      role: role.toLowerCase(),
       isLoggedIn: true,
       authMethod: "Secure Authentication",
       authDate: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
@@ -484,7 +512,7 @@ export const ShopProvider = ({ children }) => {
       logUserLoginToSQL(authenticatedUser);
     } catch (e) {}
 
-    // Send login/register POST request to backend API to store in MongoDB Atlas
+    // Send login/register POST request to backend API for cloud database sync
     apiFetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -496,7 +524,7 @@ export const ShopProvider = ({ children }) => {
           localStorage.setItem('sparkle_token', data.token);
           if (data.user && data.user.id) {
             authenticatedUser.id = data.user.id;
-            setUser({ ...authenticatedUser, id: data.user.id });
+            setUser(prev => ({ ...prev, ...authenticatedUser, id: data.user.id }));
             localStorage.setItem('sparkel_user', JSON.stringify({ ...authenticatedUser, id: data.user.id }));
           }
         }

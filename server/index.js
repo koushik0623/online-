@@ -11,7 +11,7 @@ import bcrypt from 'bcryptjs';
 
 import db from './db.js';
 import { saveOrderToDatabase, updateOrderStatusByTxnid, fetchCustomerOrders, fetchAllDatabaseOrders } from './db_mysql.js';
-import { checkPostgresHealth, runPostgresMigrations } from './db_postgres.js';
+import { checkPostgresHealth, runPostgresMigrations, queryPostgres } from './db_postgres.js';
 import { seedPostgresDatabase } from './seed/seed_postgres.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -612,6 +612,24 @@ app.post(['/api/auth/record-login', '/auth/record-login'], async (req, res) => {
       user.lastLoginAt = new Date();
       user.loginCount = (user.loginCount || 1) + 1;
       await user.save();
+    }
+
+    try {
+      const parts = (name || '').trim().split(' ');
+      const fName = parts[0] || 'Sparkle';
+      const lName = parts.slice(1).join(' ') || 'Customer';
+      if (cleanEmail) {
+        await queryPostgres(`
+          INSERT INTO users (first_name, last_name, email, phone, role, is_active, last_login_at)
+          VALUES ($1, $2, $3, $4, 'CUSTOMER', true, CURRENT_TIMESTAMP)
+          ON CONFLICT (email) DO UPDATE SET 
+            first_name = EXCLUDED.first_name,
+            last_name = EXCLUDED.last_name,
+            last_login_at = CURRENT_TIMESTAMP
+        `, [fName, lName, cleanEmail, cleanPhone || null]);
+      }
+    } catch (pgErr) {
+      console.warn('PostgreSQL record login upsert notice:', pgErr.message);
     }
 
     try {
