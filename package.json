@@ -1,0 +1,46 @@
+{
+  "name": "sparkel-kkl-luxury-accessories",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "homepage": "https://edvanta-official.github.io/online/",
+  "scripts": {
+    "dev": "node scripts/start-all.js",
+    "dev:single": "vite",
+    "build": "vite build && node scripts/copy-to-root.cjs",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "start": "node scripts/start-all.js",
+    "inspect:db": "node scripts/inspect_mongodb.js",
+    "migrate:db": "node scripts/migrate_to_mongodb.js",
+    "db:users": "node scripts/sync_mysql_users.js"
+  },
+  "dependencies": {
+    "@emailjs/browser": "^4.4.1",
+    "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.4",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "framer-motion": "^12.4.7",
+    "js-sha512": "^0.9.0",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.475.0",
+    "mongoose": "^9.9.4",
+    "mysql2": "^3.24.2",
+    "nodemailer": "^9.0.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.6",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^4.0.6",
+    "vite": "^6.1.0"
+  }
+}
