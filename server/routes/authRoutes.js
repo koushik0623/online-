@@ -46,10 +46,21 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { email, phone, password } = req.body;
+    const { email, phone, identifier, password } = req.body;
     const reqInfo = getClientInfo(req);
 
-    const result = await loginUser({ email, phone, password, reqInfo });
+    let cleanEmail = email;
+    let cleanPhone = phone;
+
+    if (!cleanEmail && !cleanPhone && identifier) {
+      if (typeof identifier === 'string' && identifier.includes('@')) {
+        cleanEmail = identifier;
+      } else {
+        cleanPhone = identifier;
+      }
+    }
+
+    const result = await loginUser({ email: cleanEmail, phone: cleanPhone, password, reqInfo });
     if (!result.success) {
       return res.status(result.statusCode || 401).json({ error: result.error });
     }

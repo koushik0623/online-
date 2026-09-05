@@ -488,7 +488,7 @@ export const ShopProvider = ({ children }) => {
     apiFetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier: email || name, password, role })
+      body: JSON.stringify({ email, phone, identifier: email || phone || name, password, role })
     })
       .then(res => res.json())
       .then(data => {
