@@ -585,10 +585,14 @@ app.post(['/api/auth/record-login', '/auth/record-login'], async (req, res) => {
     const cleanPhone = (phone || '').replace(/\D/g, '');
 
     let user = null;
-    if (cleanEmail && !cleanEmail.includes('@sparklekkv.com')) {
-      user = await User.findOne({ email: cleanEmail });
-    } else if (cleanPhone) {
-      user = await User.findOne({ phone: cleanPhone });
+    if (isMongoConnected()) {
+      try {
+        if (cleanEmail && !cleanEmail.includes('@sparklekkv.com')) {
+          user = await User.findOne({ email: cleanEmail });
+        } else if (cleanPhone) {
+          user = await User.findOne({ phone: cleanPhone });
+        }
+      } catch (mongoErr) {}
     }
 
     if (!user) {
