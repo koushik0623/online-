@@ -49,3 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 # Command to start Sparkle Backend & Frontend server
 CMD ["node", "server/index.js"]
+
