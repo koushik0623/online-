@@ -274,7 +274,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 3,
+    stock: 0,
     images: [
       "images/rectangle_claw_clips_drive.jpg"
     ],
@@ -535,7 +535,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/whatsapp_image_2026_08_10_at_7_05_39_pm_jpeg_drive.jpg"
     ],
@@ -902,7 +902,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     sizes: ["2.1", "2.3"],
     images: [
       "images/1_beaded_charm_bracelet_1_jpg_drive.jpg",
@@ -911,10 +911,16 @@ export const PRODUCTS = [
       "images/1_beaded_charm_bracelet_4_jpg_drive.jpg"
     ],
     colors: [
-      "Gold & Pearl Charms"
+      "1st Design (Out of Stock)",
+      "2nd Design (Out of Stock)",
+      "3rd Design (In Stock)",
+      "4th Design (In Stock)"
     ],
-    description: "Beaded Charm bracelet from Drive. Strung with gold heart, star, and pearl charms.",
+    description: "Beaded Charm bracelet from Drive. Strung with gold heart, star, and pearl charms. (1st & 2nd designs are Completed / Out of Stock).",
     details: [
+      "1st Design: Out of Stock (Completed)",
+      "2nd Design: Out of Stock (Completed)",
+      "3rd & 4th Designs: In Stock",
       "Quantity: 1 Set (4 Pieces)",
       "Purchase Rate: ₹144/Set (₹36/Piece)"
     ]
@@ -934,7 +940,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: false,
-    stock: 1,
+    stock: 0,
     images: [
       "images/2_adjustable_gold_plated_kada_bracelet_1_jpg_drive.jpg",
       "images/2_adjustable_gold_plated_kada_bracelet_2_jpg_drive.jpg",
@@ -966,7 +972,7 @@ export const PRODUCTS = [
     isTrending: false,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 3,
+    stock: 0,
     images: [
       "images/bracelet_drive_3.sunflower_beaded_chain_bracelet.jpg"
     ],
@@ -994,7 +1000,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 4,
+    stock: 0,
     images: [
       "images/bracelet_drive_4.gold_plated_multicolour_square_stone_link_bracelet.jpg"
     ],
@@ -1022,7 +1028,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 5,
+    stock: 0,
     images: [
       "images/bracelet_drive_5.nazar_protection_bracelet.jpg"
     ],
@@ -1050,7 +1056,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: false,
     isFlashSale: false,
-    stock: 5,
+    stock: 0,
     images: [
       "images/bracelet_drive_6.multicolour_beaded_station_chain_bracelet.jpg"
     ],
@@ -1078,7 +1084,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: false,
     isFlashSale: true,
-    stock: 5,
+    stock: 0,
     images: [
       "images/bracelet_drive_7.sunflower_beaded_chain_multicolour.jpg"
     ],
@@ -1106,7 +1112,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/bracelet_drive_8.sunflower_beaded_nazar_protection.jpg"
     ],
@@ -1134,7 +1140,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: false,
-    stock: 1,
+    stock: 0,
     images: [
       "images/bracelet_drive_9.cresent_moon_charm_bracelet.jpg"
     ],
@@ -1162,7 +1168,7 @@ export const PRODUCTS = [
     isTrending: false,
     isBestSeller: false,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/bracelet_drive_10.wavy_chain_fish_charm_bracelet.jpg"
     ],
@@ -1190,7 +1196,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/bracelet_drive_11.gold_plated_multicolour_heart.jpg"
     ],
@@ -1218,7 +1224,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: false,
-    stock: 1,
+    stock: 0,
     images: [
       "images/bracelet_drive_12.gold_heart_bracelet.jpg"
     ],
@@ -1246,7 +1252,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/bracelet_drive_13.gold_plated_multicolour_heart_crystal_link_bracelet.jpg"
     ],
@@ -1274,7 +1280,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/1_kundan_chanbali_earings.jpg"
     ],
@@ -1334,7 +1340,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: false,
     isFlashSale: true,
-    stock: 6,
+    stock: 0,
     images: [
       "images/3_double_hoop_earings_for_a_single_piecering.jpg"
     ],

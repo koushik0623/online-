@@ -22,17 +22,7 @@ export const ShopProvider = ({ children }) => {
   });
 
   const [products, setProducts] = useState(() => {
-    try {
-      const savedDeductions = localStorage.getItem('sparkel_stock_deductions');
-      const deductions = savedDeductions ? JSON.parse(savedDeductions) : {};
-      return PRODUCTS.map(p => {
-        const deducted = typeof deductions[p.id] === 'number' ? deductions[p.id] : 0;
-        const currentStock = Math.max(0, (typeof p.stock === 'number' ? p.stock : 0) - deducted);
-        return { ...p, stock: currentStock };
-      });
-    } catch (e) {
-      return PRODUCTS;
-    }
+    return PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
   });
   const [categories, setCategories] = useState(CATEGORIES);
   const [cart, setCart] = useState(() => {
@@ -472,7 +462,9 @@ export const ShopProvider = ({ children }) => {
       }
 
       if (emailInput && typeof emailInput === 'string' && emailInput.includes('@')) {
+        email = emailInput;
       }
+    }
 
     // Resolve exact registered display name if email/phone was passed in name input
     let displayName = name;
