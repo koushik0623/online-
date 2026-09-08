@@ -7,13 +7,13 @@ let content = fs.readFileSync(mockDataPath, 'utf8');
 const stockMapping = {
   // Chains
   'SPK-CN-201': { stock: 2 },
-  'SPK-CN-202': { stock: 1 },
+  'SPK-CN-202': { stock: 0 },
   'SPK-CN-203': { stock: 0 },
-  'SPK-CN-204': { stock: 1 },
+  'SPK-CN-204': { stock: 0 },
   'SPK-CN-205': { stock: 0 },
   'SPK-CN-206': { stock: 0 },
-  'SPK-CN-207': { stock: 1 },
-  'SPK-CN-208': { stock: 1 },
+  'SPK-CN-207': { stock: 0 },
+  'SPK-CN-208': { stock: 0 },
 
   // Earrings
   'SPK-ER-401': { stock: 1 },

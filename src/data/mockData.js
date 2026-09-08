@@ -704,7 +704,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: false,
     isFlashSale: true,
-    stock: 1,
+    stock: 0,
     images: [
       "images/adjustable_floral_bolo_necklace_drive.jpg"
     ],
@@ -762,7 +762,7 @@ export const PRODUCTS = [
     isTrending: true,
     isBestSeller: true,
     isFlashSale: false,
-    stock: 1,
+    stock: 0,
     images: [
       "images/flat_snake_chain_drive.jpg"
     ],
@@ -873,7 +873,7 @@ export const PRODUCTS = [
     price: 299,
     originalPrice: 499,
     rating: 4.7,
-    stock: 1,
+    stock: 0,
     images: [
       "images/round_snake_necklace_drive.jpg"
     ],

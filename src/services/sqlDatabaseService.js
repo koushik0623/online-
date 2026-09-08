@@ -223,7 +223,7 @@ export const getSQLProducts = () => {
     { product_id: 'SPK-BG-504', product_name: 'Pearl & Emerald Studded Bangles', category: 'Bangles', price: 899, stock: 25, available_sizes: '2*4, 2*6, 2*8', is_best_seller: false },
     { product_id: 'SPK-BG-505', product_name: 'Designer Oxidised Silver Bangle Set', category: 'Bangles', price: 699, stock: 30, available_sizes: '2*4, 2*6, 2*8', is_best_seller: false },
     { product_id: 'SPK-NC-101', product_name: 'Matte Gold Antique Choker Set', category: 'Necklace Sets', price: 1899, stock: 10, available_sizes: 'Standard', is_best_seller: true },
-    { product_id: 'SPK-CH-301', product_name: 'Satellite Chain 18K Gold Plated', category: 'Chains', price: 499, stock: 50, available_sizes: 'Standard', is_best_seller: true },
+    { product_id: 'SPK-CH-301', product_name: 'Satellite Chain 18K Gold Plated', category: 'Chains', price: 499, stock: 0, available_sizes: 'Standard', is_best_seller: true },
     { product_id: 'SPK-BR-401', product_name: 'Adjustable Gold Plated Kada Bracelet', category: 'Bracelets', price: 599, stock: 40, available_sizes: 'Standard', is_best_seller: true },
     { product_id: 'SPK-ER-201', product_name: 'Kundan Chandbali Earrings', category: 'Ear Rings', price: 499, stock: 35, available_sizes: 'Standard', is_best_seller: true }
   ];
