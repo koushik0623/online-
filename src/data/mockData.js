@@ -966,7 +966,7 @@ export const PRODUCTS = [
     isTrending: false,
     isBestSeller: true,
     isFlashSale: true,
-    stock: 2,
+    stock: 3,
     images: [
       "images/bracelet_drive_3.sunflower_beaded_chain_bracelet.jpg"
     ],
