@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # ========================================================
+  # 1. PostgreSQL Live Containerized Database Service
+  # ========================================================
+  sparkle-db:
+    image: postgres:16-alpine
+    container_name: sparkle-postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: sparkle_db
+      POSTGRES_USER: sparkle_user
+      POSTGRES_PASSWORD: sparkle_secure_pass123
+    ports:
+      - "5432:5432"
+    volumes:
+      - sparkle_postgres_data:/var/lib/postgresql/data
+      - ./server/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sparkle_user -d sparkle_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========================================================
+  # 2. Sparkle @ KKV Application & API Service
+  # ========================================================
+  sparkle-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sparkle-app-server
+    restart: always
+    ports:
+      - "5000:5000"
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: postgresql://sparkle_user:sparkle_secure_pass123@sparkle-db:5432/sparkle_db
+      ADMIN_EMAIL: sparklekkvofficial@gmail.com
+    depends_on:
+      sparkle-db:
+        condition: service_healthy
+
+volumes:
+  sparkle_postgres_data:
+    driver: local
