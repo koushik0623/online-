@@ -8,6 +8,7 @@ import {
 
 import { fetchGlobalDatabaseOrders } from '../services/remoteOrderSync';
 import { getSQLLoggedInUsers, getSQLOrders, getSQLOrderItems, getSQLProducts, generateSQLDumpScript } from '../services/sqlDatabaseService';
+import { fetchCloudUsers, fetchCloudOrders } from '../services/neonCloudService';
 import { apiFetch } from '../services/apiConfig';
 
 export const AdminDashboard = () => {
@@ -78,20 +79,18 @@ export const AdminDashboard = () => {
       }
     } catch (e) {}
 
-    try {
-      const res = await apiFetch('/api/orders');
-      if (res && res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.orders)) {
-          const cleanOrders = data.orders.filter(o => {
-            const id = getOrderId(o);
-            return id && !TEST_ORDER_IDS.includes(id);
-          });
-          setLiveOrders(cleanOrders);
-          return;
-        }
+    const cloudOrders = await fetchCloudOrders();
+    const globalOrders = fetchGlobalDatabaseOrders();
+
+    const mergedMap = new Map();
+    [...cloudOrders, ...globalOrders, ...orders].forEach(o => {
+      const id = getOrderId(o);
+      if (id && !TEST_ORDER_IDS.includes(id)) {
+        mergedMap.set(id, { ...o, id });
       }
-    } catch (e) {}
+    });
+
+    setLiveOrders(Array.from(mergedMap.values()));
   };
 
   const [liveUsers, setLiveUsers] = useState([]);
@@ -109,7 +108,18 @@ export const AdminDashboard = () => {
     } catch (e) {}
 
     const sqlUsers = getSQLLoggedInUsers();
-    setLiveUsers(sqlUsers);
+    const cloudUsers = await fetchCloudUsers();
+
+    const mergedUsersMap = new Map();
+    [...cloudUsers, ...sqlUsers].forEach(u => {
+      if (!u) return;
+      const key = String(u.email || u.phone || u.full_name || u.name || '').toLowerCase().trim();
+      if (key && !key.includes('admin@sparklekkv.com')) {
+        mergedUsersMap.set(key, u);
+      }
+    });
+
+    setLiveUsers(Array.from(mergedUsersMap.values()));
   };
 
   const handleExportCustomersCSV = () => {

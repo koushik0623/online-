@@ -1,5 +1,6 @@
 // SQL Database Connector & Logger Service for Sparkle @ KKV Store
 import { apiFetch } from './apiConfig';
+import { recordCloudUserLogin, fetchCloudUsers, recordCloudOrder } from './neonCloudService';
 
 const SQL_USERS_STORAGE_KEY = 'SPARKLE_SQL_USERS_DB';
 const SQL_ORDERS_STORAGE_KEY = 'SPARKLE_SQL_ORDERS_DB';
@@ -10,6 +11,9 @@ const SQL_ITEMS_STORAGE_KEY = 'SPARKLE_SQL_ITEMS_DB';
  */
 export const logUserLoginToSQL = (user) => {
   if (!user || (!user.email && !user.name && !user.phone)) return;
+
+  // Direct HTTPS Cloud DB Sync to Neon
+  recordCloudUserLogin(user).catch(() => {});
 
   // Post live login event to backend server so all devices see the customer on Admin Dashboard
   apiFetch('/api/auth/record-login', {
@@ -108,6 +112,9 @@ export const getSQLLoggedInUsers = () => {
  */
 export const syncOrderToSQLDatabase = async (order) => {
   if (!order || !order.id) return;
+
+  // Direct HTTPS Cloud DB Sync to Neon
+  recordCloudOrder(order).catch(() => {});
 
   try {
     const orders = JSON.parse(localStorage.getItem(SQL_ORDERS_STORAGE_KEY) || '[]');

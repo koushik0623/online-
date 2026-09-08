@@ -1,5 +1,7 @@
 // Real-Time Store Order Sync Service for Sparkle @ KKV Owner Admin Portal
 
+import { recordCloudOrder, fetchCloudOrders } from './neonCloudService';
+
 const LOCAL_STORAGE_REMOTE_KEY = 'SPARKLE_REMOTE_ORDERS_DATABASE';
 const OWNER_NOTIFICATION_EMAIL = 'sparklekkvofficial@gmail.com';
 const ADMIN_EMAIL = 'support@sparklekkv.com';
@@ -9,6 +11,9 @@ const ADMIN_EMAIL = 'support@sparklekkv.com';
  */
 export const saveOrderToGlobalDatabase = async (newOrder) => {
   if (!newOrder || !newOrder.id) return;
+
+  // Direct HTTPS Cloud DB Sync to Neon
+  recordCloudOrder(newOrder).catch(() => {});
 
   try {
     // 1. Update persistent local database
