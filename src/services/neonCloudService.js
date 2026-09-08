@@ -36,16 +36,20 @@ export const queryNeonSQL = async (queryText) => {
 export const recordCloudUserLogin = async (user) => {
   if (!user || (!user.email && !user.name && !user.phone)) return;
 
-  const email = (user.email || '').replace(/'/g, "''");
-  const name = (user.name || user.full_name || 'Sparkle Customer').replace(/'/g, "''");
-  const phone = (user.phone || '').replace(/'/g, "''");
+  const rawEmail = (user.email || '').replace(/'/g, "''").trim();
+  const name = (user.name || user.full_name || 'Sparkle Customer').replace(/'/g, "''").trim();
+  const phone = (user.phone || '').replace(/'/g, "''").trim();
   const role = (user.role || 'customer').toUpperCase();
+
+  const cleanEmail = rawEmail && rawEmail.includes('@') 
+    ? rawEmail 
+    : `${(phone || name || 'customer').toLowerCase().replace(/[^a-z0-9]/g, '')}@sparklekkv.com`;
 
   const sql = `
     INSERT INTO users (first_name, last_name, email, phone, role, password_hash, last_login_at, created_at)
-    VALUES ('${name}', '', '${email || 'customer@sparklekkv.com'}', '${phone || 'N/A'}', '${role}', '$2b$10$default', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    VALUES ('${name}', '', '${cleanEmail}', '${phone || 'N/A'}', '${role}', '$2b$10$default', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     ON CONFLICT (email) 
-    DO UPDATE SET last_login_at = CURRENT_TIMESTAMP, phone = COALESCE(EXCLUDED.phone, users.phone);
+    DO UPDATE SET last_login_at = CURRENT_TIMESTAMP, first_name = '${name}', phone = COALESCE(EXCLUDED.phone, users.phone);
   `;
 
   await queryNeonSQL(sql);
@@ -66,7 +70,6 @@ export const fetchCloudUsers = async () => {
       COALESCE(last_login_at, created_at) as last_login_at,
       created_at
     FROM users 
-    WHERE email NOT LIKE '%sparklekkvofficial%'
     ORDER BY COALESCE(last_login_at, created_at) DESC;
   `;
 
