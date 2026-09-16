@@ -854,8 +854,28 @@ export const AdminDashboard = () => {
                             const file = e.target.files?.[0];
                             if (file) {
                               const reader = new FileReader();
-                              reader.onloadend = () => {
-                                setNewProduct({ ...newProduct, images: reader.result });
+                              reader.onload = (event) => {
+                                const img = new Image();
+                                img.onload = () => {
+                                  const canvas = document.createElement('canvas');
+                                  let width = img.width;
+                                  let height = img.height;
+                                  const MAX_SIZE = 800;
+                                  if (width > height && width > MAX_SIZE) {
+                                    height = Math.round((height * MAX_SIZE) / width);
+                                    width = MAX_SIZE;
+                                  } else if (height > MAX_SIZE) {
+                                    width = Math.round((width * MAX_SIZE) / height);
+                                    height = MAX_SIZE;
+                                  }
+                                  canvas.width = width;
+                                  canvas.height = height;
+                                  const ctx = canvas.getContext('2d');
+                                  ctx.drawImage(img, 0, 0, width, height);
+                                  const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+                                  setNewProduct({ ...newProduct, images: compressedDataUrl });
+                                };
+                                img.src = event.target.result;
                               };
                               reader.readAsDataURL(file);
                             }

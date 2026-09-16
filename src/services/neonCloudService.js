@@ -124,3 +124,75 @@ export const fetchCloudOrders = async () => {
   return rows && rows.length > 0 ? rows : [];
 };
 
+/**
+ * Ensures custom_products table exists in Neon Cloud Database
+ */
+export const initCloudProductsTable = async () => {
+  const sql = `
+    CREATE TABLE IF NOT EXISTS custom_products (
+      id VARCHAR(100) PRIMARY KEY,
+      data TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `;
+  await queryNeonSQL(sql).catch(() => {});
+};
+
+/**
+ * Saves or updates a custom product in Neon Cloud Database
+ */
+export const recordCloudProduct = async (product) => {
+  if (!product || !product.id) return;
+
+  await initCloudProductsTable();
+
+  const prodId = String(product.id).replace(/'/g, "''");
+  const dataJson = JSON.stringify(product).replace(/'/g, "''");
+
+  const sql = `
+    INSERT INTO custom_products (id, data, created_at)
+    VALUES ('${prodId}', '${dataJson}', CURRENT_TIMESTAMP)
+    ON CONFLICT (id) 
+    DO UPDATE SET data = '${dataJson}', created_at = CURRENT_TIMESTAMP;
+  `;
+
+  await queryNeonSQL(sql).catch(err => console.warn('[Cloud Product Sync Error]:', err));
+};
+
+/**
+ * Deletes a custom product from Neon Cloud Database
+ */
+export const removeCloudProduct = async (productId) => {
+  if (!productId) return;
+  const prodId = String(productId).replace(/'/g, "''");
+  const sql = `DELETE FROM custom_products WHERE id = '${prodId}';`;
+  await queryNeonSQL(sql).catch(() => {});
+};
+
+/**
+ * Fetches all custom products from Neon Cloud Database
+ */
+export const fetchCloudProducts = async () => {
+  try {
+    await initCloudProductsTable();
+    const sql = `SELECT data FROM custom_products ORDER BY created_at DESC;`;
+    const rows = await queryNeonSQL(sql);
+    if (rows && rows.length > 0) {
+      const parsedProds = [];
+      rows.forEach(r => {
+        try {
+          if (r && r.data) {
+            const prodObj = typeof r.data === 'string' ? JSON.parse(r.data) : r.data;
+            if (prodObj && prodObj.id) parsedProds.push(prodObj);
+          }
+        } catch (e) {}
+      });
+      return parsedProds;
+    }
+    return [];
+  } catch (err) {
+    console.warn('[Fetch Cloud Products Error]:', err);
+    return [];
+  }
+};
+

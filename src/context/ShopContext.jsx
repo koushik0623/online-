@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PRODUCTS, CATEGORIES, COUPONS, BRAND_INFO } from '../data/mockData';
 import { sendCustomerSigninEmailToAdmin, sendOrderPaymentConfirmationEmail } from '../services/emailService';
 import { saveOrderToGlobalDatabase, fetchGlobalDatabaseOrders } from '../services/remoteOrderSync';
+import { recordCloudProduct, removeCloudProduct, fetchCloudProducts } from '../services/neonCloudService';
 import { logUserLoginToSQL, syncOrderToSQLDatabase } from '../services/sqlDatabaseService';
 import { apiFetch } from '../services/apiConfig';
 
@@ -36,6 +37,26 @@ export const ShopProvider = ({ children }) => {
       return PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
     }
   });
+
+  useEffect(() => {
+    fetchCloudProducts()
+      .then(cloudProds => {
+        if (Array.isArray(cloudProds) && cloudProds.length > 0) {
+          setProducts(prev => {
+            const baseProds = PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
+            const prodMap = new Map();
+            cloudProds.forEach(p => p && p.id && prodMap.set(p.id, p));
+            try {
+              const saved = JSON.parse(localStorage.getItem('sparkle_custom_products') || '[]');
+              if (Array.isArray(saved)) saved.forEach(p => p && p.id && prodMap.set(p.id, p));
+            } catch (e) {}
+            baseProds.forEach(p => p && p.id && !prodMap.has(p.id) && prodMap.set(p.id, p));
+            return Array.from(prodMap.values());
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [categories, setCategories] = useState(CATEGORIES);
   const [cart, setCart] = useState(() => {
     try {
@@ -593,12 +614,18 @@ export const ShopProvider = ({ children }) => {
       stock: typeof newProd.stock === 'number' ? newProd.stock : Number(newProd.stock) || 10,
       ...newProd
     };
+
+    // Save to Neon Cloud Database for global cross-device customer sync
+    recordCloudProduct(prod).catch(() => {});
+
     setProducts(prev => {
-      const updated = [prod, ...prev];
+      const filteredPrev = prev.filter(p => p.id !== prod.id);
+      const updated = [prod, ...filteredPrev];
       try {
         const customSaved = localStorage.getItem('sparkle_custom_products');
         const customList = customSaved ? JSON.parse(customSaved) : [];
-        localStorage.setItem('sparkle_custom_products', JSON.stringify([prod, ...customList]));
+        const filteredCustom = customList.filter(p => p.id !== prod.id);
+        localStorage.setItem('sparkle_custom_products', JSON.stringify([prod, ...filteredCustom]));
       } catch (e) {}
       return updated;
     });
@@ -609,12 +636,14 @@ export const ShopProvider = ({ children }) => {
       body: JSON.stringify(prod)
     }).catch(() => {});
 
-    showToast(`✨ Product "${prod.name}" added automatically to website catalog!`, "success");
+    showToast(`✨ Product "${prod.name}" added live to website catalog!`, "success");
   };
 
   const updateProduct = (id, updatedData) => {
     setProducts(prev => {
       const updated = prev.map(p => p.id === id ? { ...p, ...updatedData } : p);
+      const targetProd = updated.find(p => p.id === id);
+      if (targetProd) recordCloudProduct(targetProd).catch(() => {});
       try {
         const customSaved = localStorage.getItem('sparkle_custom_products');
         if (customSaved) {
@@ -629,6 +658,7 @@ export const ShopProvider = ({ children }) => {
   };
 
   const deleteProduct = (id) => {
+    removeCloudProduct(id).catch(() => {});
     setProducts(prev => {
       const updated = prev.filter(p => p.id !== id);
       try {
