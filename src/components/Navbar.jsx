@@ -208,16 +208,6 @@ export const Navbar = () => {
                 </span>
               </button>
 
-              {/* Admin Portal Link Button */}
-              <Link
-                to="/admin"
-                className="bg-[#2C2C2C] hover:bg-[#C89B3C] text-[#FCE4EC] hover:text-black px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full flex items-center gap-1.5 font-montserrat font-bold text-[11px] sm:text-xs shadow-xs transition-all shrink-0 border border-[#D4AF7F]/30"
-                title="Admin Portal (Add Products & Manage Store)"
-              >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF7F]" />
-                <span className="hidden sm:inline">Admin</span>
-              </Link>
-
               {/* User Account & Admin Sign In (Desktop) */}
               <div className="relative hidden sm:block">
                 {safeUser.isLoggedIn ? (
@@ -478,10 +468,6 @@ export const Navbar = () => {
               <button onClick={() => { setIsCartOpen(true); setIsMobileMenuOpen(false); }} className="hover:text-[#C89B3C]">
                 🛍️ Cart ({totalCartItems})
               </button>
-              <span className="text-gray-300">•</span>
-              <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="text-[#C89B3C] font-bold">
-                🛡️ Admin
-              </Link>
               {user.isLoggedIn && (
                 <>
                   <span className="text-gray-300">•</span>
