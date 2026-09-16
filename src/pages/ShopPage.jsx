@@ -44,10 +44,24 @@ export const ShopPage = () => {
     let result = [...products];
 
     if (selectedCategory && selectedCategory !== 'all') {
-      result = result.filter(p => p && p.category && (
-        p.category.toLowerCase() === selectedCategory.toLowerCase() ||
-        (selectedCategory === 'hair-accessories' && (p.category === 'clips' || p.category === 'hair-accessories'))
-      ));
+      result = result.filter(p => {
+        if (!p || (!p.category && !p.categoryName)) return false;
+        const catLower = (p.category || '').toLowerCase();
+        const catNameLower = (p.categoryName || '').toLowerCase();
+        const selLower = selectedCategory.toLowerCase();
+        
+        if (catLower === selLower) return true;
+
+        if (selLower === 'hair-accessories' && (catLower === 'clips' || catLower === 'hair-accessories' || catNameLower.includes('clip'))) return true;
+        if (selLower === 'chains' && (catLower === 'chains' || catNameLower.includes('chain'))) return true;
+        if (selLower === 'earrings' && (catLower === 'earrings' || catNameLower.includes('ear') || catNameLower.includes('jhumka'))) return true;
+        if (selLower === 'necklaces' && (catLower === 'necklaces' || catNameLower.includes('necklace') || catNameLower.includes('choker'))) return true;
+        if (selLower === 'bracelets' && (catLower === 'bracelets' || catNameLower.includes('bracelet') || catNameLower.includes('kada'))) return true;
+        if (selLower === 'bangles' && (catLower === 'bangles' || catNameLower.includes('bangle'))) return true;
+        if (selLower === 'gift-sets' && (catLower === 'gift-sets' || catNameLower.includes('gift') || catNameLower.includes('combo'))) return true;
+
+        return false;
+      });
     }
 
     if (currentSubcategory) {

@@ -280,13 +280,23 @@ export const AdminDashboard = () => {
       return;
     }
 
+    const category = newProduct.category || 'hair-accessories';
+    let categoryName = 'Clips';
+    if (category === 'chains') categoryName = 'Chains';
+    if (category === 'earrings') categoryName = 'Ear Rings';
+    if (category === 'hair-accessories') categoryName = 'Clips';
+    if (category === 'necklaces') categoryName = 'Necklace Sets';
+    if (category === 'bracelets') categoryName = 'Bracelets';
+    if (category === 'bangles') categoryName = 'Bangles';
+    if (category === 'gift-sets') categoryName = 'Gift Sets & Combos';
+
     const createdProd = {
       id: `SPK-CUSTOM-${Date.now()}`,
       sku: `SPK-NEW-${Math.floor(1000 + Math.random() * 9000)}`,
       name: newProduct.name,
-      category: newProduct.category || 'chains',
-      subcategory: newProduct.subcategory || 'anti-tarnish',
-      categoryName: newProduct.category === 'chains' ? 'Chains' : (newProduct.category === 'earrings' ? 'Ear Rings' : 'Luxury Accessory'),
+      category: category,
+      subcategory: newProduct.subcategory || (category === 'hair-accessories' ? 'flower-clips' : 'anti-tarnish'),
+      categoryName: categoryName,
       price: Number(newProduct.price),
       originalPrice: Number(newProduct.originalPrice || newProduct.price),
       rating: 5.0,
@@ -301,7 +311,7 @@ export const AdminDashboard = () => {
     addProduct(createdProd);
     setLocalProducts(prev => [createdProd, ...(prev || [])]);
     setIsAddProductModalOpen(false);
-    setNewProduct({ name: '', category: 'chains', subcategory: 'anti-tarnish', price: '', originalPrice: '', stock: 10, images: '', description: '' });
+    setNewProduct({ name: '', category: 'hair-accessories', subcategory: 'flower-clips', price: '', originalPrice: '', stock: 10, images: '', description: '' });
   };
 
   const filteredOrdersList = (Array.isArray(liveOrders) ? liveOrders : []).filter(o => {
