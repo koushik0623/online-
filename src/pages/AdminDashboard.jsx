@@ -299,6 +299,7 @@ export const AdminDashboard = () => {
     };
 
     addProduct(createdProd);
+    setLocalProducts(prev => [createdProd, ...(prev || [])]);
     setIsAddProductModalOpen(false);
     setNewProduct({ name: '', category: 'chains', subcategory: 'anti-tarnish', price: '', originalPrice: '', stock: 10, images: '', description: '' });
   };
@@ -318,11 +319,12 @@ export const AdminDashboard = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const filteredProductsList = localProducts.filter(p => {
+  const activeProductsSource = (products && products.length > 0) ? products : localProducts;
+  const filteredProductsList = (activeProductsSource || []).filter(p => {
     if (!p) return false;
     const q = productSearchQuery.toLowerCase();
     return (
-      p.name.toLowerCase().includes(q) ||
+      (p.name && p.name.toLowerCase().includes(q)) ||
       (p.sku && p.sku.toLowerCase().includes(q)) ||
       (p.category && p.category.toLowerCase().includes(q)) ||
       (p.subcategory && p.subcategory.toLowerCase().includes(q))

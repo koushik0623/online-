@@ -44,7 +44,10 @@ export const ShopPage = () => {
     let result = [...products];
 
     if (selectedCategory && selectedCategory !== 'all') {
-      result = result.filter(p => p.category === selectedCategory);
+      result = result.filter(p => p && p.category && (
+        p.category.toLowerCase() === selectedCategory.toLowerCase() ||
+        (selectedCategory === 'hair-accessories' && (p.category === 'clips' || p.category === 'hair-accessories'))
+      ));
     }
 
     if (currentSubcategory) {
