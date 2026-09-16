@@ -22,7 +22,19 @@ export const ShopProvider = ({ children }) => {
   });
 
   const [products, setProducts] = useState(() => {
-    return PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
+    try {
+      const baseProds = PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
+      const savedCustom = localStorage.getItem('sparkle_custom_products');
+      if (!savedCustom) return baseProds;
+      const parsedCustom = JSON.parse(savedCustom);
+      if (Array.isArray(parsedCustom) && parsedCustom.length > 0) {
+        // Merge custom products at the beginning
+        return [...parsedCustom, ...baseProds];
+      }
+      return baseProds;
+    } catch (e) {
+      return PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
+    }
   });
   const [categories, setCategories] = useState(CATEGORIES);
   const [cart, setCart] = useState(() => {
@@ -573,23 +585,63 @@ export const ShopProvider = ({ children }) => {
   // Product CRUD for Admin
   const addProduct = (newProd) => {
     const prod = {
-      id: `p${Date.now()}`,
+      id: newProd.id || `SPK-CUSTOM-${Date.now()}`,
+      sku: newProd.sku || `SKU-${Math.floor(1000 + Math.random() * 9000)}`,
       rating: 5.0,
-      reviewsCount: 0,
+      reviewsCount: 1,
+      isNew: true,
+      stock: typeof newProd.stock === 'number' ? newProd.stock : Number(newProd.stock) || 10,
       ...newProd
     };
-    setProducts(prev => [prod, ...prev]);
-    showToast(`New product "${prod.name}" created!`);
+    setProducts(prev => {
+      const updated = [prod, ...prev];
+      try {
+        const customSaved = localStorage.getItem('sparkle_custom_products');
+        const customList = customSaved ? JSON.parse(customSaved) : [];
+        localStorage.setItem('sparkle_custom_products', JSON.stringify([prod, ...customList]));
+      } catch (e) {}
+      return updated;
+    });
+
+    apiFetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prod)
+    }).catch(() => {});
+
+    showToast(`✨ Product "${prod.name}" added automatically to website catalog!`, "success");
   };
 
   const updateProduct = (id, updatedData) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updatedData } : p));
-    showToast(`Product updated successfully!`);
+    setProducts(prev => {
+      const updated = prev.map(p => p.id === id ? { ...p, ...updatedData } : p);
+      try {
+        const customSaved = localStorage.getItem('sparkle_custom_products');
+        if (customSaved) {
+          const customList = JSON.parse(customSaved);
+          const updatedCustom = customList.map(p => p.id === id ? { ...p, ...updatedData } : p);
+          localStorage.setItem('sparkle_custom_products', JSON.stringify(updatedCustom));
+        }
+      } catch (e) {}
+      return updated;
+    });
+    showToast(`Product updated successfully!`, "success");
   };
 
   const deleteProduct = (id) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
-    showToast(`Product deleted`, "info");
+    setProducts(prev => {
+      const updated = prev.filter(p => p.id !== id);
+      try {
+        const customSaved = localStorage.getItem('sparkle_custom_products');
+        if (customSaved) {
+          const customList = JSON.parse(customSaved);
+          const updatedCustom = customList.filter(p => p.id !== id);
+          localStorage.setItem('sparkle_custom_products', JSON.stringify(updatedCustom));
+        }
+      } catch (e) {}
+      return updated;
+    });
+    showToast(`Product removed from catalog`, "info");
   };
 
   const defaultSubscribers = [];

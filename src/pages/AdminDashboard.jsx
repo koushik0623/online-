@@ -19,6 +19,8 @@ export const AdminDashboard = () => {
     orders,
     subscribers,
     deleteSubscriber,
+    addProduct,
+    deleteProduct,
     COUPONS,
     showToast
   } = useShop();
@@ -279,27 +281,26 @@ export const AdminDashboard = () => {
     }
 
     const createdProd = {
-      id: `SPK-CUSTOM-${Math.floor(100 + Math.random() * 900)}`,
-      sku: `SPK-NEW-${Math.floor(100 + Math.random() * 900)}`,
+      id: `SPK-CUSTOM-${Date.now()}`,
+      sku: `SPK-NEW-${Math.floor(1000 + Math.random() * 9000)}`,
       name: newProduct.name,
-      category: newProduct.category,
-      subcategory: newProduct.subcategory,
-      categoryName: 'Custom Product',
+      category: newProduct.category || 'chains',
+      subcategory: newProduct.subcategory || 'anti-tarnish',
+      categoryName: newProduct.category === 'chains' ? 'Chains' : (newProduct.category === 'earrings' ? 'Ear Rings' : 'Luxury Accessory'),
       price: Number(newProduct.price),
       originalPrice: Number(newProduct.originalPrice || newProduct.price),
-      rating: 5,
+      rating: 5.0,
       reviewsCount: 1,
       isNew: true,
       isTrending: true,
-      stock: Number(newProduct.stock),
-      images: [newProduct.images || 'images/shin-chan.png'],
-      description: newProduct.description || 'Premium handcrafted jewelry item.'
+      stock: Number(newProduct.stock) || 10,
+      images: [newProduct.images || 'images/3.Green oval stone antitarnish gold plated stainless chain.JPG'],
+      description: newProduct.description || 'Premium handcrafted luxury accessory item.'
     };
 
-    setLocalProducts([createdProd, ...localProducts]);
+    addProduct(createdProd);
     setIsAddProductModalOpen(false);
-    setNewProduct({ name: '', category: 'gift-sets', subcategory: 'canvas', price: '', originalPrice: '', stock: 10, images: 'images/shin-chan.png', description: '' });
-    showToast(`✨ Product "${createdProd.name}" added to store catalog!`, "success");
+    setNewProduct({ name: '', category: 'chains', subcategory: 'anti-tarnish', price: '', originalPrice: '', stock: 10, images: '', description: '' });
   };
 
   const filteredOrdersList = (Array.isArray(liveOrders) ? liveOrders : []).filter(o => {
@@ -803,24 +804,37 @@ export const AdminDashboard = () => {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block font-semibold text-[#D4AF7F] mb-1">Category</label>
+                        <label className="block font-semibold text-[#D4AF7F] mb-1">Category *</label>
                         <select
                           value={newProduct.category}
-                          onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                          onChange={(e) => {
+                            const cat = e.target.value;
+                            let sub = 'all';
+                            if (cat === 'chains') sub = 'anti-tarnish';
+                            if (cat === 'earrings') sub = 'traditional-earrings';
+                            if (cat === 'hair-accessories') sub = 'flower-clips';
+                            if (cat === 'necklaces') sub = 'chokers';
+                            if (cat === 'bracelets') sub = 'chain-bracelets';
+                            if (cat === 'bangles') sub = 'kemp-bangles';
+                            if (cat === 'gift-sets') sub = 'luxury-sets';
+                            setNewProduct({ ...newProduct, category: cat, subcategory: sub });
+                          }}
                           className="w-full p-2.5 bg-[#0F0F0F] border border-[#D4AF7F]/40 rounded-xl text-white focus:outline-none focus:border-[#C89B3C]"
                         >
-                          <option value="gift-sets">Gift Sets & Combos</option>
-                          <option value="canvas">CANVAS Art</option>
-                          <option value="earrings">Ear Rings</option>
-                          <option value="hair-accessories">Clips</option>
-                          <option value="necklaces">Necklace Sets</option>
+                          <option value="chains">⛓️ Chains (Anti-Tarnish)</option>
+                          <option value="earrings">✨ Ear Rings & Chandbali</option>
+                          <option value="hair-accessories">🌸 Clips & Plumeria Flowers</option>
+                          <option value="necklaces">📿 Necklace Sets & Chokers</option>
+                          <option value="bracelets">💎 Bracelets & Kadas</option>
+                          <option value="bangles">🔱 Bangles & Kemp Sets</option>
+                          <option value="gift-sets">🎁 Gift Sets & Combos</option>
                         </select>
                       </div>
                       <div>
                         <label className="block font-semibold text-[#D4AF7F] mb-1">Subcategory</label>
                         <input
                           type="text"
-                          placeholder="canvas"
+                          placeholder="e.g. anti-tarnish"
                           value={newProduct.subcategory}
                           onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
                           className="w-full p-2.5 bg-[#0F0F0F] border border-[#D4AF7F]/40 rounded-xl text-white focus:outline-none focus:border-[#C89B3C]"
@@ -829,12 +843,46 @@ export const AdminDashboard = () => {
                     </div>
 
                     <div>
-                      <label className="block font-semibold text-[#D4AF7F] mb-1">Image Path</label>
-                      <input
-                        type="text"
-                        placeholder="images/shin-chan.png"
-                        value={newProduct.images}
-                        onChange={(e) => setNewProduct({ ...newProduct, images: e.target.value })}
+                      <label className="block font-semibold text-[#D4AF7F] mb-1">Product Image (File Upload or Image Path/URL) *</label>
+                      <div className="space-y-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setNewProduct({ ...newProduct, images: reader.result });
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                          className="w-full p-2 bg-[#0F0F0F] border border-[#D4AF7F]/40 rounded-xl text-xs text-gray-300 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#C89B3C] file:text-black hover:file:bg-[#D4AF7F] cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          placeholder="Or paste image URL / path e.g. images/3.Green oval stone...JPG"
+                          value={newProduct.images}
+                          onChange={(e) => setNewProduct({ ...newProduct, images: e.target.value })}
+                          className="w-full p-2 bg-[#0F0F0F] border border-[#D4AF7F]/30 rounded-xl text-white text-[11px] focus:outline-none focus:border-[#C89B3C]"
+                        />
+                      </div>
+                      {newProduct.images && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-[10px] text-gray-400 font-mono">Image Preview:</span>
+                          <img src={newProduct.images} alt="Preview" className="w-12 h-12 object-cover rounded-lg border border-[#C89B3C]" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block font-semibold text-[#D4AF7F] mb-1">Product Description</label>
+                      <textarea
+                        rows="2"
+                        placeholder="e.g. Waterproof anti-tarnish stainless steel gold chain..."
+                        value={newProduct.description}
+                        onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                         className="w-full p-2.5 bg-[#0F0F0F] border border-[#D4AF7F]/40 rounded-xl text-white focus:outline-none focus:border-[#C89B3C]"
                       />
                     </div>
@@ -843,7 +891,7 @@ export const AdminDashboard = () => {
                       type="submit"
                       className="w-full bg-[#C89B3C] hover:bg-[#D4AF7F] text-black font-montserrat font-bold py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg transition-all mt-2"
                     >
-                      Add Product To Store
+                      Add Product To Store Catalog
                     </button>
                   </form>
                 </div>
@@ -853,21 +901,38 @@ export const AdminDashboard = () => {
             {/* PRODUCT CATALOG GRID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredProductsList.map(prod => (
-                <div key={prod.id} className="bg-[#1A1A1A] p-4 rounded-2xl border border-[#D4AF7F]/30 shadow-md flex flex-col justify-between space-y-3">
+                <div key={prod.id} className="bg-[#1A1A1A] p-4 rounded-2xl border border-[#D4AF7F]/30 shadow-md flex flex-col justify-between space-y-3 relative group">
+                  <button
+                    onClick={() => deleteProduct(prod.id)}
+                    className="absolute top-2 right-2 z-10 bg-red-900/80 hover:bg-red-600 text-white p-1.5 rounded-lg shadow transition-all"
+                    title="Delete Product"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
                   <div className="space-y-2">
                     <img
-                      src={prod.images?.[0] || 'images/shin-chan.png'}
+                      src={prod.images?.[0] || 'images/3.Green oval stone antitarnish gold plated stainless chain.JPG'}
                       alt={prod.name}
                       className="w-full h-36 object-cover rounded-xl border border-gray-800 bg-[#0F0F0F]"
                     />
                     <div>
-                      <span className="text-[10px] font-mono text-[#C89B3C] block">{prod.sku || prod.id}</span>
-                      <h4 className="font-semibold text-xs text-white line-clamp-2">{prod.name}</h4>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono text-[#C89B3C] block">{prod.sku || prod.id}</span>
+                        <span className="text-[9px] uppercase font-montserrat font-bold px-2 py-0.5 rounded bg-[#2C2C2C] text-[#D4AF7F]">
+                          {prod.category}
+                        </span>
+                      </div>
+                      <h4 className="font-semibold text-xs text-white line-clamp-2 mt-1">{prod.name}</h4>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between border-t border-gray-800 pt-2 text-xs">
-                    <span className="font-bold text-[#FCE4EC]">₹{prod.price}</span>
+                    <div>
+                      <span className="font-bold text-[#FCE4EC]">₹{prod.price}</span>
+                      {prod.originalPrice > prod.price && (
+                        <span className="text-[10px] text-gray-500 line-through ml-1">₹{prod.originalPrice}</span>
+                      )}
+                    </div>
                     <span className="text-[10px] text-gray-400">Stock: {prod.stock || 10}</span>
                   </div>
                 </div>

@@ -97,10 +97,10 @@ export const Footer = () => {
             <ul className="space-y-2 text-gray-300 font-light">
               <li><Link to="/dashboard" className="hover:text-[#C89B3C] transition-colors">Track Your Order</Link></li>
               <li><Link to="/dashboard" className="hover:text-[#C89B3C] transition-colors">My Account & Saved Addresses</Link></li>
+              <li><Link to="/admin" className="text-[#C89B3C] font-bold hover:underline flex items-center gap-1">🛡️ Admin Portal (Add Products & Orders)</Link></li>
               <li><a href="#about" className="hover:text-[#C89B3C] transition-colors">About <strong className="text-[#C89B3C] uppercase">SPARKLE</strong> <span className="text-white lowercase text-[10px]">@kkv</span></a></li>
               <li><a href="#exchange" className="hover:text-[#C89B3C] transition-colors">7 Days Exchange Policy</a></li>
               <li><a href="#care" className="hover:text-[#C89B3C] transition-colors">Jewelry Care Guide</a></li>
-              <li><a href="#faqs" className="hover:text-[#C89B3C] transition-colors">Support Email: support@sparklekkv.com</a></li>
             </ul>
           </div>
 
