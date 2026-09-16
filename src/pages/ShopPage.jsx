@@ -3,10 +3,11 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { NAVIGATION_TREE } from '../data/mockData';
 import { ProductCard } from '../components/ProductCard';
-import { Search, SlidersHorizontal, Sparkles, X, ChevronRight, Tag, Zap, Star, Filter, Check } from 'lucide-react';
+import { Search, SlidersHorizontal, Sparkles, X, ChevronRight, Tag, Zap, Star, Filter, Check, Plus } from 'lucide-react';
 
 export const ShopPage = () => {
-  const { products } = useShop();
+  const { products, user } = useShop();
+  const isAdminOwner = (user && user.role === 'admin') || localStorage.getItem('sparkle_admin_authed') === 'true';
   const [searchParams, setSearchParams] = useSearchParams();
 
   const currentCategory = searchParams.get('category') || 'all';
@@ -647,6 +648,25 @@ export const ShopPage = () => {
             {filteredProducts.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
+
+            {/* Quick Add Product Card (Visible for Store Owner / Admin) */}
+            <Link
+              to="/admin"
+              className="group border-2 border-dashed border-[#C89B3C]/50 hover:border-[#C89B3C] bg-gradient-to-b from-[#FFF9F5] to-white rounded-3xl p-5 flex flex-col items-center justify-center text-center transition-all hover:shadow-xl cursor-pointer min-h-[300px]"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#C89B3C]/10 text-[#C89B3C] flex items-center justify-center text-2xl font-bold mb-3 group-hover:scale-110 group-hover:bg-[#C89B3C] group-hover:text-white transition-all shadow-xs">
+                <Plus className="w-7 h-7" />
+              </div>
+              <h4 className="font-serif-luxury font-bold text-sm text-[#2C2C2C] group-hover:text-[#C89B3C] transition-colors">
+                + Add New Product
+              </h4>
+              <p className="text-[11px] text-gray-500 font-poppins mt-1">
+                Add item to {activeSubcategoryObj ? activeSubcategoryObj.name : activeCategoryObj ? activeCategoryObj.name : 'Catalog'}
+              </p>
+              <span className="mt-4 bg-[#2C2C2C] text-[#FCE4EC] group-hover:bg-[#C89B3C] group-hover:text-black text-[10px] font-montserrat font-bold px-3.5 py-1.5 rounded-full uppercase tracking-wider transition-colors shadow-xs">
+                Open Admin Portal →
+              </span>
+            </Link>
           </div>
         )}
 
