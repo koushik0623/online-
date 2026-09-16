@@ -39,23 +39,32 @@ export const ShopProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    fetchCloudProducts()
-      .then(cloudProds => {
-        if (Array.isArray(cloudProds) && cloudProds.length > 0) {
-          setProducts(prev => {
-            const baseProds = PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
-            const prodMap = new Map();
-            cloudProds.forEach(p => p && p.id && prodMap.set(p.id, p));
-            try {
-              const saved = JSON.parse(localStorage.getItem('sparkle_custom_products') || '[]');
-              if (Array.isArray(saved)) saved.forEach(p => p && p.id && prodMap.set(p.id, p));
-            } catch (e) {}
-            baseProds.forEach(p => p && p.id && !prodMap.has(p.id) && prodMap.set(p.id, p));
-            return Array.from(prodMap.values());
-          });
-        }
-      })
-      .catch(() => {});
+    const syncProductsFromCloud = () => {
+      fetchCloudProducts()
+        .then(cloudProds => {
+          if (Array.isArray(cloudProds)) {
+            setProducts(prev => {
+              const baseProds = PRODUCTS.map(p => ({ ...p, stock: typeof p.stock === 'number' ? p.stock : 0 }));
+              const prodMap = new Map();
+              // Cloud products take highest precedence
+              cloudProds.forEach(p => p && p.id && prodMap.set(p.id, p));
+              // Merge local custom products
+              try {
+                const saved = JSON.parse(localStorage.getItem('sparkle_custom_products') || '[]');
+                if (Array.isArray(saved)) saved.forEach(p => p && p.id && !prodMap.has(p.id) && prodMap.set(p.id, p));
+              } catch (e) {}
+              // Merge base catalog items
+              baseProds.forEach(p => p && p.id && !prodMap.has(p.id) && prodMap.set(p.id, p));
+              return Array.from(prodMap.values());
+            });
+          }
+        })
+        .catch(() => {});
+    };
+
+    syncProductsFromCloud();
+    const interval = setInterval(syncProductsFromCloud, 5000);
+    return () => clearInterval(interval);
   }, []);
   const [categories, setCategories] = useState(CATEGORIES);
   const [cart, setCart] = useState(() => {
