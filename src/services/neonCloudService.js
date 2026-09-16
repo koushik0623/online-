@@ -147,13 +147,13 @@ export const recordCloudProduct = async (product) => {
   await initCloudProductsTable();
 
   const prodId = String(product.id).replace(/'/g, "''");
-  const dataJson = JSON.stringify(product).replace(/'/g, "''");
+  const dataJson = JSON.stringify(product);
 
   const sql = `
     INSERT INTO custom_products (id, data, created_at)
-    VALUES ('${prodId}', '${dataJson}', CURRENT_TIMESTAMP)
+    VALUES ('${prodId}', $PROD$${dataJson}$PROD$, CURRENT_TIMESTAMP)
     ON CONFLICT (id) 
-    DO UPDATE SET data = '${dataJson}', created_at = CURRENT_TIMESTAMP;
+    DO UPDATE SET data = $PROD$${dataJson}$PROD$, created_at = CURRENT_TIMESTAMP;
   `;
 
   await queryNeonSQL(sql).catch(err => console.warn('[Cloud Product Sync Error]:', err));
