@@ -46,26 +46,34 @@ export const ShopPage = () => {
     if (selectedCategory && selectedCategory !== 'all') {
       result = result.filter(p => {
         if (!p || (!p.category && !p.categoryName)) return false;
-        const catLower = (p.category || '').toLowerCase();
-        const catNameLower = (p.categoryName || '').toLowerCase();
-        const selLower = selectedCategory.toLowerCase();
-        
-        if (catLower === selLower) return true;
+        const catLower = (p.category || '').toLowerCase().trim();
+        const catNameLower = (p.categoryName || '').toLowerCase().trim();
+        const rawSelLower = selectedCategory.toLowerCase().trim();
+        const selHyphen = rawSelLower.replace(/[\s_]+/g, '-');
 
-        if (selLower === 'hair-accessories' && (catLower === 'clips' || catLower === 'hair-accessories' || catNameLower.includes('clip'))) return true;
-        if (selLower === 'chains' && (catLower === 'chains' || catNameLower.includes('chain'))) return true;
-        if (selLower === 'earrings' && (catLower === 'earrings' || catNameLower.includes('ear') || catNameLower.includes('jhumka'))) return true;
-        if (selLower === 'necklaces' && (catLower === 'necklaces' || catNameLower.includes('necklace') || catNameLower.includes('choker'))) return true;
-        if (selLower === 'bracelets' && (catLower === 'bracelets' || catNameLower.includes('bracelet') || catNameLower.includes('kada'))) return true;
-        if (selLower === 'bangles' && (catLower === 'bangles' || catNameLower.includes('bangle'))) return true;
-        if (selLower === 'gift-sets' && (catLower === 'gift-sets' || catNameLower.includes('gift') || catNameLower.includes('combo'))) return true;
+        if (catLower === rawSelLower || catLower === selHyphen) return true;
+
+        if ((selHyphen === 'hair-accessories' || selHyphen === 'clips') && (catLower === 'clips' || catLower === 'hair-accessories' || catNameLower.includes('clip'))) return true;
+        if (selHyphen === 'chains' && (catLower === 'chains' || catNameLower.includes('chain'))) return true;
+        if ((selHyphen === 'earrings' || selHyphen === 'ear-rings') && (catLower === 'earrings' || catNameLower.includes('ear') || catNameLower.includes('jhumka'))) return true;
+        if ((selHyphen === 'necklaces' || selHyphen === 'necklace-sets') && (catLower === 'necklaces' || catNameLower.includes('necklace') || catNameLower.includes('choker'))) return true;
+        if (selHyphen === 'bracelets' && (catLower === 'bracelets' || catNameLower.includes('bracelet') || catNameLower.includes('kada'))) return true;
+        if (selHyphen === 'bangles' && (catLower === 'bangles' || catNameLower.includes('bangle'))) return true;
+        if ((selHyphen === 'gift-sets' || selHyphen === 'giftsets' || selHyphen.includes('gift')) && (catLower === 'gift-sets' || catLower.includes('gift') || catNameLower.includes('gift') || catNameLower.includes('combo'))) return true;
 
         return false;
       });
     }
 
     if (currentSubcategory) {
-      result = result.filter(p => p.subcategory === currentSubcategory);
+      const curSubHyphen = currentSubcategory.toLowerCase().trim().replace(/[\s_]+/g, '-');
+      result = result.filter(p => {
+        if (!p) return false;
+        // Include custom items and items without strict subcategory constraints
+        if (!p.subcategory || p.subcategory === 'all' || p.subcategory === '' || p.subcategory === 'luxury-sets' || p.isNew || String(p.id || '').startsWith('SPK-CUSTOM')) return true;
+        const pSubHyphen = (p.subcategory || '').toLowerCase().trim().replace(/[\s_]+/g, '-');
+        return pSubHyphen === curSubHyphen;
+      });
     }
 
     if (onlyFlashSale) {

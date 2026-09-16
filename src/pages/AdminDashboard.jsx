@@ -821,36 +821,79 @@ export const AdminDashboard = () => {
                           value={newProduct.category}
                           onChange={(e) => {
                             const cat = e.target.value;
-                            let sub = 'all';
+                            let sub = 'canvas';
                             if (cat === 'chains') sub = 'anti-tarnish';
                             if (cat === 'earrings') sub = 'traditional-earrings';
                             if (cat === 'hair-accessories') sub = 'flower-clips';
                             if (cat === 'necklaces') sub = 'chokers';
                             if (cat === 'bracelets') sub = 'chain-bracelets';
                             if (cat === 'bangles') sub = 'kemp-bangles';
-                            if (cat === 'gift-sets') sub = 'luxury-sets';
+                            if (cat === 'gift-sets') sub = 'canvas';
                             setNewProduct({ ...newProduct, category: cat, subcategory: sub });
                           }}
                           className="w-full p-2.5 bg-[#0F0F0F] border border-[#D4AF7F]/40 rounded-xl text-white focus:outline-none focus:border-[#C89B3C]"
                         >
+                          <option value="gift-sets">🎁 Gift Sets & Combos</option>
+                          <option value="hair-accessories">🌸 Clips & Plumeria Flowers</option>
                           <option value="chains">⛓️ Chains (Anti-Tarnish)</option>
                           <option value="earrings">✨ Ear Rings & Chandbali</option>
-                          <option value="hair-accessories">🌸 Clips & Plumeria Flowers</option>
                           <option value="necklaces">📿 Necklace Sets & Chokers</option>
                           <option value="bracelets">💎 Bracelets & Kadas</option>
                           <option value="bangles">🔱 Bangles & Kemp Sets</option>
-                          <option value="gift-sets">🎁 Gift Sets & Combos</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block font-semibold text-[#D4AF7F] mb-1">Subcategory</label>
-                        <input
-                          type="text"
-                          placeholder="e.g. anti-tarnish"
+                        <label className="block font-semibold text-[#D4AF7F] mb-1">Subcategory *</label>
+                        <select
                           value={newProduct.subcategory}
                           onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}
                           className="w-full p-2.5 bg-[#0F0F0F] border border-[#D4AF7F]/40 rounded-xl text-white focus:outline-none focus:border-[#C89B3C]"
-                        />
+                        >
+                          {newProduct.category === 'gift-sets' && (
+                            <>
+                              <option value="canvas">🖼️ CANVAS (Personalized Art Frames)</option>
+                              <option value="flowers">🌸 FLOWERS (Botanical Hampers)</option>
+                              <option value="luxury-sets">🎁 All Gift Combos</option>
+                            </>
+                          )}
+                          {newProduct.category === 'hair-accessories' && (
+                            <>
+                              <option value="flower-clips">🌸 Flower Clips</option>
+                              <option value="claw-clips">🦀 Claw Clips</option>
+                            </>
+                          )}
+                          {newProduct.category === 'chains' && (
+                            <>
+                              <option value="anti-tarnish">✨ Anti-Tarnish Chains</option>
+                              <option value="daily-wear">⛓️ Daily Wear Chains</option>
+                            </>
+                          )}
+                          {newProduct.category === 'earrings' && (
+                            <>
+                              <option value="traditional-earrings">✨ Traditional Chandbali</option>
+                              <option value="studs">💎 Studs & Drops</option>
+                              <option value="hoops">⭕ Hoops & Combo Sets</option>
+                            </>
+                          )}
+                          {newProduct.category === 'necklaces' && (
+                            <>
+                              <option value="chokers">📿 Choker Sets</option>
+                              <option value="temple-style">🔱 Traditional Temple Sets</option>
+                            </>
+                          )}
+                          {newProduct.category === 'bracelets' && (
+                            <>
+                              <option value="chain-bracelets">💎 Chain & Kada Bracelets</option>
+                              <option value="stone-bracelets">✨ Stone Link Bracelets</option>
+                            </>
+                          )}
+                          {newProduct.category === 'bangles' && (
+                            <>
+                              <option value="kemp-bangles">🔱 Kemp & Stone Bangles</option>
+                              <option value="metal-bangles">✨ Antique & Metal Bangles</option>
+                            </>
+                          )}
+                        </select>
                       </div>
                     </div>
 
