@@ -10,55 +10,7 @@ import { sendOtpEmailViaFormSubmit } from '../services/emailService';
 import { apiFetch } from '../services/apiConfig';
 
 export const AmazonAuthModal = ({ isOpen, onClose }) => {
-  const { loginUser, showToast } = useShop();
-
-  // Mode: 'signin' | 'register' | 'admin_signin' | 'forgot' | 'otp_verify'
-  const [authMode, setAuthMode] = useState('signin');
-
-  // Customer Sign In State - Clean empty defaults
-  const [signInInput, setSignInInput] = useState('');
-  const [signInPassword, setSignInPassword] = useState('');
-  const [useOtpSignIn, setUseOtpSignIn] = useState(false);
-
-
-
-  // Register State - Clean empty defaults
-  const [regName, setRegName] = useState('');
-  const [regPhone, setRegPhone] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regConfirmPassword, setRegConfirmPassword] = useState('');
-
-  // OTP Verification State
-  const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
-  const [generatedOtp, setGeneratedOtp] = useState('');
-  const [activeTargetDestination, setActiveTargetDestination] = useState('');
-  const [otpTimer, setOtpTimer] = useState(30);
-  const [isOtpTimerActive, setIsOtpTimerActive] = useState(false);
-
-  // Forgot Password State - Clean empty defaults
-  const [forgotInput, setForgotInput] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-
-  // UI / Error State
-  const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
-
-  // OTP Timer Countdown Effect
-  useEffect(() => {
-    let interval = null;
-    if (isOtpTimerActive && otpTimer > 0) {
-      interval = setInterval(() => setOtpTimer((t) => t - 1), 1000);
-    } else if (otpTimer === 0) {
-      setIsOtpTimerActive(false);
-    }
-    return () => clearInterval(interval);
-  }, [isOtpTimerActive, otpTimer]);
-
-  if (!isOpen) return null;
+  return null;
 
   // Trigger 6-digit OTP dispatch dynamically to whatever email/phone target the user entered
   const handleSendOtp = (targetDestination) => {
