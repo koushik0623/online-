@@ -197,6 +197,9 @@ export const ShopProvider = ({ children }) => {
 
     let addedSuccessfully = true;
 
+    setIsLoginModalOpen(false);
+    setIsCartOpen(true);
+
     setCart(prev => {
       const safePrev = Array.isArray(prev) ? prev : [];
       const existingIndex = safePrev.findIndex(item => item && item.product && item.product.id === product.id);
