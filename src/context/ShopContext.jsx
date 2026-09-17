@@ -148,8 +148,10 @@ export const ShopProvider = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [pendingCheckoutAfterLogin, setPendingCheckoutAfterLogin] = useState(false);
+  const isLoginModalOpen = false;
+  const setIsLoginModalOpen = () => {};
+  const pendingCheckoutAfterLogin = false;
+  const setPendingCheckoutAfterLogin = () => {};
   const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [toast, setToast] = useState(null);
 
