@@ -57,6 +57,56 @@ export const CheckoutModal = () => {
     setIsPayULoading(false);
   };
 
+  const handleDirectWhatsAppCheckout = () => {
+    if (!cart || cart.length === 0) return;
+
+    const itemsText = cart.map((item, index) => {
+      const colorText = item.selectedColor ? ` (Color: ${item.selectedColor})` : '';
+      const itemSubtotal = (item.product.price || 0) * (item.quantity || 1);
+      return `${index + 1}. *${item.product.name}*${colorText}\n   Qty: ${item.quantity} × ₹${item.product.price} = ₹${itemSubtotal}`;
+    }).join('\n\n');
+
+    const customerNameText = shippingForm.fullName ? `👤 *Customer Name:* ${shippingForm.fullName}\n` : (user?.name ? `👤 *Customer Name:* ${user.name}\n` : '');
+    const customerPhoneText = shippingForm.phone ? `📱 *Phone:* ${shippingForm.phone}\n` : (user?.phone ? `📱 *Phone:* ${user.phone}\n` : '');
+    const addressText = shippingForm.street ? `📍 *Address:* ${shippingForm.street}, ${shippingForm.city || ''} ${shippingForm.pincode || ''}\n` : '';
+
+    const message = 
+`✨ *NEW ORDER REQUEST - SPARKLE @KKV* ✨
+
+${customerNameText}${customerPhoneText}${addressText}🛒 *Order Items (${cart.reduce((sum, i) => sum + i.quantity, 0)} items):*
+${itemsText}
+
+-----------------------------
+💵 *Bag Subtotal:* ₹${cartSubtotal}
+${discountAmount > 0 ? `🏷️ *Discount:* -₹${discountAmount}\n` : ''}🚚 *Shipping Fee:* ${shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}
+💰 *Total Amount:* *₹${cartTotal}*
+-----------------------------
+
+Please confirm my order and share payment details!`;
+
+    const whatsappUrl = `https://wa.me/919949157771?text=${encodeURIComponent(message)}`;
+
+    try {
+      placeOrder({
+        shippingAddress: shippingForm,
+        paymentMethod: "WhatsApp Direct Order",
+        paymentStatus: "Pending WhatsApp Confirmation",
+        orderStatus: "Order Received",
+        cartSubtotal,
+        discountAmount,
+        shippingFee,
+        cartTotal
+      });
+    } catch (e) {}
+
+    showToast("📱 Opening WhatsApp with order items...", "success");
+    setIsCheckoutOpen(false);
+    
+    setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
+    }, 300);
+  };
+
   if (!isCheckoutOpen) return null;
 
   // Generate UPI Deep Links for GPay, Paytm, PhonePe & SuperMoney with exact order total
@@ -329,7 +379,29 @@ export const CheckoutModal = () => {
           {/* STEP 1: Shipping Address */}
           {step === 1 && (
             <div className="space-y-6">
-              <h3 className="font-serif-luxury text-lg font-bold text-[#2C2C2C]">1. Delivery Details</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-serif-luxury text-lg font-bold text-[#2C2C2C]">1. Delivery Details</h3>
+              </div>
+
+              {/* Instant WhatsApp Order Prompt Banner */}
+              <div className="bg-[#DCF8C6]/90 border-2 border-emerald-500/80 rounded-2xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-2.5 text-xs text-emerald-950 font-poppins">
+                  <MessageSquare className="w-5 h-5 text-emerald-600 shrink-0" />
+                  <div>
+                    <span className="font-bold block text-xs">Want to order directly on WhatsApp?</span>
+                    <span className="text-[11px] text-emerald-800">Send cart items instantly to +91 9949157771</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleDirectWhatsAppCheckout}
+                  className="bg-[#25D366] hover:bg-[#1ebd59] text-white font-montserrat font-bold py-2 px-4 rounded-xl text-xs shadow-sm transition-transform active:scale-95 shrink-0 flex items-center justify-center gap-2"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Order on WhatsApp</span>
+                </button>
+              </div>
+
               <form onSubmit={handleShippingSubmit} className="space-y-4 text-xs font-poppins">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>

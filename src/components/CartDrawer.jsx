@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Trash2, ArrowRight, ShoppingBag, Sparkles, Tag, ShieldCheck, Video, Truck } from 'lucide-react';
+import { X, Trash2, ArrowRight, ShoppingBag, Sparkles, Tag, ShieldCheck, Video, Truck, MessageSquare } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { getDirectImageUrl } from '../utils/imageUtils';
 
@@ -22,7 +22,8 @@ export const CartDrawer = () => {
     setIsCheckoutOpen,
     user,
     setIsLoginModalOpen,
-    showToast
+    showToast,
+    placeOrder
   } = useShop();
 
   const [couponInput, setCouponInput] = useState('');
@@ -31,6 +32,69 @@ export const CartDrawer = () => {
 
   const freeShippingThreshold = 999;
   const progressPercent = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
+
+  const handleWhatsAppCheckout = () => {
+    if (!cart || cart.length === 0) return;
+
+    const itemsText = cart.map((item, index) => {
+      const colorText = item.selectedColor ? ` (Color: ${item.selectedColor})` : '';
+      const itemSubtotal = (item.product.price || 0) * (item.quantity || 1);
+      return `${index + 1}. *${item.product.name}*${colorText}\n   Qty: ${item.quantity} × ₹${item.product.price} = ₹${itemSubtotal}`;
+    }).join('\n\n');
+
+    let discountText = discountAmount > 0 ? `\n🏷️ *Discount:* -₹${discountAmount}` : '';
+    let couponText = appliedCoupon ? ` (Coupon: ${appliedCoupon.code})` : '';
+
+    const customerNameText = user?.name ? `👤 *Customer Name:* ${user.name}\n` : '';
+    const customerPhoneText = user?.phone ? `📱 *Phone:* ${user.phone}\n` : '';
+
+    const message = 
+`✨ *NEW ORDER REQUEST - SPARKLE @KKV* ✨
+
+${customerNameText}${customerPhoneText}🛒 *Cart Items (${cart.reduce((sum, i) => sum + i.quantity, 0)} items):*
+${itemsText}
+
+-----------------------------
+💵 *Bag Subtotal:* ₹${cartSubtotal}
+${discountText}${couponText}
+🚚 *Shipping Fee:* ${shippingFee === 0 ? 'FREE' : `₹${shippingFee}`}
+💰 *Total Amount:* *₹${cartTotal}*
+-----------------------------
+
+Please confirm my order and share delivery / payment details!`;
+
+    const whatsappUrl = `https://wa.me/919949157771?text=${encodeURIComponent(message)}`;
+
+    // Store order record in system for store owner dashboard
+    try {
+      placeOrder({
+        shippingAddress: { 
+          fullName: user?.name || "WhatsApp Customer", 
+          phone: user?.phone || "", 
+          street: "WhatsApp Direct Order", 
+          city: "", 
+          state: "", 
+          pincode: "" 
+        },
+        paymentMethod: "WhatsApp Direct Order",
+        paymentStatus: "Pending WhatsApp Confirmation",
+        orderStatus: "Order Received",
+        cartSubtotal,
+        discountAmount,
+        shippingFee,
+        cartTotal
+      });
+    } catch (e) {
+      console.warn("WhatsApp order record exception:", e);
+    }
+
+    showToast("📱 Opening WhatsApp with your cart items...", "success");
+    setIsCartOpen(false);
+    
+    setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
+    }, 300);
+  };
 
   const handleApplyCouponSubmit = (e) => {
     e.preventDefault();
@@ -283,19 +347,27 @@ export const CartDrawer = () => {
 
               {/* Checkout CTA */}
               <button
+                onClick={handleWhatsAppCheckout}
+                className="w-full shimmer-btn bg-gradient-to-r from-[#25D366] via-[#1ebd59] to-[#128C7E] text-white py-3.5 sm:py-4 rounded-2xl font-montserrat text-xs sm:text-sm font-bold tracking-wider uppercase shadow-xl transition-transform hover:scale-[1.02] flex items-center justify-center gap-2.5 cursor-pointer"
+              >
+                <MessageSquare className="w-5 h-5 text-white animate-bounce shrink-0" />
+                <span>Order On WhatsApp Now (₹{cartTotal})</span>
+                <ArrowRight className="w-4 h-4 text-white shrink-0" />
+              </button>
+
+              <button
                 onClick={() => {
                   setIsCartOpen(false);
                   setIsCheckoutOpen(true);
                 }}
-                className="w-full shimmer-btn bg-gradient-to-r from-[#2C2C2C] via-[#3A2D32] to-[#2C2C2C] text-[#FCE4EC] hover:text-[#D4AF7F] py-3 sm:py-3.5 rounded-2xl font-montserrat text-xs font-bold tracking-widest uppercase shadow-xl transition-transform hover:scale-[1.02] flex items-center justify-center gap-2"
+                className="w-full bg-[#2C2C2C] text-[#FCE4EC] hover:text-[#D4AF7F] py-2.5 rounded-xl font-montserrat text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-2 border border-[#D4AF7F]/30"
               >
-                <span>Proceed To Secure Checkout</span>
-                <ArrowRight className="w-4 h-4 text-[#D4AF7F]" />
+                <span>Or Pay Online (Card / UPI / PhonePe / PayU)</span>
               </button>
 
-              <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 font-poppins">
+              <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 font-poppins pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#C89B3C]" />
-                <span>100% Encrypted & Safe Checkout</span>
+                <span>Instant WhatsApp Confirmation • 100% Encrypted</span>
               </div>
 
             </div>
