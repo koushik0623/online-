@@ -355,16 +355,6 @@ Please confirm my order and share delivery / payment details!`;
                 <ArrowRight className="w-4 h-4 text-white shrink-0" />
               </button>
 
-              <button
-                onClick={() => {
-                  setIsCartOpen(false);
-                  setIsCheckoutOpen(true);
-                }}
-                className="w-full bg-[#2C2C2C] text-[#FCE4EC] hover:text-[#D4AF7F] py-2.5 rounded-xl font-montserrat text-xs font-semibold tracking-wide transition-all flex items-center justify-center gap-2 border border-[#D4AF7F]/30"
-              >
-                <span>Or Pay Online (Card / UPI / PhonePe / PayU)</span>
-              </button>
-
               <div className="flex items-center justify-center gap-2 text-[10px] text-gray-400 font-poppins pt-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#C89B3C]" />
                 <span>Instant WhatsApp Confirmation • 100% Encrypted</span>
