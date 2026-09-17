@@ -39,7 +39,21 @@ export const CartDrawer = () => {
     const itemsText = cart.map((item, index) => {
       const colorText = item.selectedColor ? ` (Color: ${item.selectedColor})` : '';
       const itemSubtotal = (item.product.price || 0) * (item.quantity || 1);
-      return `${index + 1}. *${item.product.name}*${colorText}\n   Qty: ${item.quantity} × ₹${item.product.price} = ₹${itemSubtotal}`;
+      const rawImg = item.product.images?.[0] || '';
+      const directImgUrl = getDirectImageUrl(rawImg);
+
+      let fullImgUrl = '';
+      if (directImgUrl) {
+        if (directImgUrl.startsWith('http')) {
+          fullImgUrl = directImgUrl;
+        } else if (!directImgUrl.startsWith('data:')) {
+          const cleanPath = directImgUrl.replace(/^\//, '');
+          fullImgUrl = `https://sparklekkv.com/${cleanPath}`;
+        }
+      }
+
+      const imageLine = fullImgUrl ? `\n   🖼️ *Item Image:* ${fullImgUrl}` : '';
+      return `${index + 1}. *${item.product.name}*${colorText}\n   Qty: ${item.quantity} × ₹${item.product.price} = ₹${itemSubtotal}${imageLine}`;
     }).join('\n\n');
 
     let discountText = discountAmount > 0 ? `\n🏷️ *Discount:* -₹${discountAmount}` : '';
