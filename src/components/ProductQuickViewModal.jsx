@@ -26,15 +26,9 @@ export const ProductQuickViewModal = () => {
   const isWishlisted = wishlist.includes(quickViewProduct.id);
 
   const handleBuyNow = () => {
-    if (!user || !user.isLoggedIn) {
-      setQuickViewProduct(null);
-      showToast("⚠️ Please sign in to purchase items!", "error");
-      setIsLoginModalOpen(true);
-      return;
-    }
     addToCart(quickViewProduct, quantity, selectedColor);
     setQuickViewProduct(null);
-    setIsCheckoutOpen(true);
+    setIsCartOpen(true);
   };
 
   return (

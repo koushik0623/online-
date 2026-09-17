@@ -284,15 +284,6 @@ export const CartDrawer = () => {
               {/* Checkout CTA */}
               <button
                 onClick={() => {
-                  if (!user || !user.isLoggedIn) {
-                    setIsCartOpen(false);
-                    if (typeof setPendingCheckoutAfterLogin === 'function') {
-                      setPendingCheckoutAfterLogin(true);
-                    }
-                    showToast("🔒 Please Sign In or Create an Account to continue to Secure Checkout!", "warning");
-                    setIsLoginModalOpen(true);
-                    return;
-                  }
                   setIsCartOpen(false);
                   setIsCheckoutOpen(true);
                 }}

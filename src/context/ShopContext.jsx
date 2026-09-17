@@ -243,34 +243,8 @@ export const ShopProvider = ({ children }) => {
       return false;
     }
 
-    const finalQty = Math.min(quantity, maxStock);
-    if (quantity > maxStock) {
-      showToast(`Stock limit reached! Set to maximum ${maxStock} available units.`, "warning");
-    }
-
-    const singleItemCart = [{
-      product: foundProd,
-      quantity: finalQty,
-      selectedColor: color || foundProd.colors?.[0] || 'Default'
-    }];
-
-    setCart(singleItemCart);
-    try {
-      localStorage.setItem('sparkel_cart', JSON.stringify(singleItemCart));
-    } catch (e) {}
-
-    // SECURITY GUARD: Require customer login BEFORE opening payment / checkout screen
-    if (!user || !user.isLoggedIn) {
-      setPendingCheckoutAfterLogin(true);
-      setIsLoginModalOpen(true);
-      showToast("🔒 Please Sign In or Register to continue to Secure Checkout!", "warning");
-      return false;
-    }
-
-    setIsCheckoutOpen(false);
-    setTimeout(() => {
-      setIsCheckoutOpen(true);
-    }, 10);
+    addToCart(foundProd, quantity, color);
+    setIsCartOpen(true);
     return true;
   };
 
