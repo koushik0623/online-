@@ -33,36 +33,14 @@ export const CartDrawer = () => {
   const freeShippingThreshold = 999;
   const progressPercent = Math.min(100, Math.round((cartSubtotal / freeShippingThreshold) * 100));
 
-  const fetchImageFile = async (rawUrl) => {
-    if (!rawUrl) return null;
-    try {
-      const directUrl = getDirectImageUrl(rawUrl);
-      let fetchUrl = directUrl;
-      if (!directUrl.startsWith('http') && !directUrl.startsWith('data:')) {
-        const cleanPath = directUrl.replace(/^\//, '');
-        fetchUrl = `${window.location.origin}/${cleanPath}`;
-      }
-      const response = await fetch(fetchUrl);
-      const blob = await response.blob();
-      const mimeType = blob.type && blob.type.startsWith('image/') ? blob.type : 'image/jpeg';
-      const ext = mimeType.split('/')[1] || 'jpg';
-      return new File([blob], `sparkle_order_item.${ext}`, { type: mimeType });
-    } catch (err) {
-      console.warn("Could not fetch image file for sharing:", err);
-      return null;
-    }
-  };
-
-  const handleWhatsAppCheckout = async () => {
+  const handleWhatsAppCheckout = () => {
     if (!cart || cart.length === 0) return;
-
-    const firstItem = cart[0];
-    const rawImg = firstItem?.product?.images?.[0] || '';
 
     const itemsText = cart.map((item, index) => {
       const colorText = item.selectedColor ? ` (Color: ${item.selectedColor})` : '';
       const itemSubtotal = (item.product.price || 0) * (item.quantity || 1);
-      const directImgUrl = getDirectImageUrl(item.product.images?.[0] || '');
+      const rawImg = item.product.images?.[0] || '';
+      const directImgUrl = getDirectImageUrl(rawImg);
 
       let fullImgUrl = '';
       if (directImgUrl) {
@@ -74,7 +52,7 @@ export const CartDrawer = () => {
         }
       }
 
-      const imageLine = fullImgUrl ? `\n   🖼️ *Item Image:* ${fullImgUrl}` : '';
+      const imageLine = fullImgUrl ? `\n   🖼️ *Product Photo:* ${fullImgUrl}` : '';
       return `${index + 1}. *${item.product.name}*${colorText}\n   Qty: ${item.quantity} × ₹${item.product.price} = ₹${itemSubtotal}${imageLine}`;
     }).join('\n\n');
 
@@ -122,43 +100,11 @@ Please confirm my order and share delivery / payment details!`;
       console.warn("WhatsApp order record exception:", e);
     }
 
+    showToast("📱 Opening WhatsApp directly with live product photos...", "success");
     setIsCartOpen(false);
 
-    // Fetch product image file for direct attachment
-    const imageFile = await fetchImageFile(rawImg);
-
-    // 1. Native Web Share API (attaches direct image file directly in WhatsApp on Mobile/Tablet)
-    if (imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
-      try {
-        showToast("📸 Attaching direct item photo to WhatsApp...", "info");
-        await navigator.share({
-          files: [imageFile],
-          title: "Sparkle @ KKV Order",
-          text: message
-        });
-        return;
-      } catch (shareErr) {
-        console.log("Web Share cancelled/fallback:", shareErr);
-      }
-    }
-
-    // 2. Clipboard Image Copy (for Desktop browsers)
-    if (imageFile && navigator.clipboard && window.ClipboardItem) {
-      try {
-        await navigator.clipboard.write([
-          new ClipboardItem({ [imageFile.type]: imageFile })
-        ]);
-        showToast("📋 Direct item photo copied! Press Ctrl+V in WhatsApp chat to paste image.", "success");
-      } catch (clipErr) {
-        console.log("Clipboard image copy exception:", clipErr);
-      }
-    }
-
-    // 3. Fallback: Open WhatsApp URL
     const whatsappUrl = `https://wa.me/919949157771?text=${encodeURIComponent(message)}`;
-    setTimeout(() => {
-      window.open(whatsappUrl, '_blank');
-    }, 200);
+    window.open(whatsappUrl, '_blank');
   };
 
   const handleApplyCouponSubmit = (e) => {
