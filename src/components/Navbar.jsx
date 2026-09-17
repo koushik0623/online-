@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Search, ShoppingBag, Heart, User, Sparkles, Menu, X, ShieldCheck, ChevronDown, Home, Grid, Lock, Eye, EyeOff } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { NAVIGATION_TREE } from '../data/mockData';
-import { AmazonAuthModal } from './AmazonAuthModal';
 
 export const Navbar = () => {
   const {
@@ -491,12 +490,6 @@ export const Navbar = () => {
 
           </div>
         )}
-
-        {/* Auth Modal */}
-        <AmazonAuthModal 
-          isOpen={isLoginModalOpen} 
-          onClose={() => setIsLoginModalOpen(false)} 
-        />
       </nav>
     </header>
   );
